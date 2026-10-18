@@ -360,3 +360,25 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
   :root:not([data-motion="off"]) *, :root:not([data-motion="off"]) *::before, :root:not([data-motion="off"]) *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
 :root[data-motion="on"] *, :root[data-motion="on"] *::before, :root[data-motion="on"] *::after { transition: none !important; animation: none !important; }
+
+/* ---------- Lecteur (mots touchables) ---------- */
+.reader { display: flex; flex-direction: column; gap: 14px; font-size: 1.12rem; line-height: 1.9; }
+.reader.ja { line-height: 2.2; }
+.reader-par { margin: 0; overflow-wrap: anywhere; }
+.tok { cursor: pointer; border-radius: 4px; -webkit-tap-highlight-color: transparent; }
+.tok:hover { background: var(--accent-soft); }
+.tok.known { text-decoration: underline; text-decoration-style: dotted; text-decoration-color: var(--accent); text-underline-offset: 4px; text-decoration-thickness: 2px; }
+.tok.sel { background: var(--accent-soft); outline: 2px solid var(--accent); outline-offset: 1px; }
+.reader-panel {
+  position: fixed; z-index: 30; left: 0; right: 0;
+  bottom: calc(var(--tab-h) + env(safe-area-inset-bottom));
+  max-height: 62dvh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--surface); border-top: 1px solid var(--line);
+  border-radius: 18px 18px 0 0; padding: 14px 16px;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.18);
+}
+.reader-spacer { height: 45dvh; }
+@media (min-width: 900px) {
+  .reader-panel { bottom: 0; left: 50%; right: auto; width: 640px; transform: translateX(-50%); border: 1px solid var(--line); }
+}

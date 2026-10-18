@@ -17,6 +17,7 @@ import {
   Settings,
   Snapshot,
   StudyDay,
+  TextItem,
   emptySnapshot,
 } from "./types";
 import * as db from "./db";
@@ -51,6 +52,8 @@ export interface Store {
   deleteCard(cardId: string): Promise<void>;
   answerCard(args: AnswerArgs): Promise<void>;
   answerExercise(exercise: Exercise, correct: boolean, elapsedSec: number): Promise<void>;
+  saveText(item: TextItem): Promise<void>;
+  deleteText(id: string): Promise<void>;
   updateSettings(fn: (s: Settings) => Settings): Promise<void>;
   updateLangSettings(lang: Lang, patch: Partial<LangSettings>): Promise<void>;
   exportBackup(): BackupFile;
@@ -313,6 +316,20 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           const next = normalizeSettings(fn(cur.settings));
           await db.write([{ store: "settings", put: [db.settingsRecord(next)] }]);
           commit({ ...cur, settings: next });
+        }),
+
+      saveText: (item) =>
+        enqueue(async () => {
+          const cur = ref.current;
+          await db.write([{ store: "texts", put: [item] }]);
+          commit({ ...cur, texts: upsert(cur.texts, item, (t) => t.id) });
+        }),
+
+      deleteText: (id) =>
+        enqueue(async () => {
+          const cur = ref.current;
+          await db.write([{ store: "texts", del: [id] }]);
+          commit({ ...cur, texts: cur.texts.filter((t) => t.id !== id) });
         }),
 
       updateLangSettings: (lang, patch) =>

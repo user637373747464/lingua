@@ -12,6 +12,8 @@ import {
   Settings,
   Snapshot,
   StudyDay,
+  TextItem,
+  MAX_TEXT_LENGTH,
   POS_LIST,
   structuredCloneSafe,
 } from "./types";
@@ -37,6 +39,7 @@ export function createBackup(snapshot: Snapshot, now: number): BackupFile {
       entries: snapshot.entries.length,
       cards: snapshot.cards.length,
       reviewStates: snapshot.reviewStates.length,
+      texts: snapshot.texts.length,
     },
     data: snapshot,
   };
@@ -116,6 +119,16 @@ function checkDay(x: unknown, i: number): void {
   need(isNum(x.seconds) && isNum(x.answers) && isNum(x.correct), `${where} : nombres invalides`);
 }
 
+function checkText(x: unknown, i: number): void {
+  const where = `texte n°${i + 1}`;
+  need(isObj(x) && isStr(x.id) && isLang(x.lang) && isStr(x.title), `${where} : format invalide`);
+  need(x.kind === "text" || x.kind === "article" || x.kind === "podcast", `${where} : type invalide`);
+  need(x.body === undefined || (isStr(x.body) && x.body.length <= MAX_TEXT_LENGTH), `${where} : contenu invalide ou trop long`);
+  need(x.url === undefined || isStr(x.url), `${where} : adresse invalide`);
+  need(x.notes === undefined || isStr(x.notes), `${where} : notes invalides`);
+  need(isNum(x.createdAt) && isNum(x.updatedAt), `${where} : dates invalides`);
+}
+
 /** Complète les anciens champs manquants (utile quand le format évoluera). */
 export function normalizeSettings(raw: unknown): Settings {
   const base = structuredCloneSafe(DEFAULT_SETTINGS);
@@ -185,7 +198,8 @@ export function parseBackup(text: string): ParseResult {
     const states = (d.reviewStates ?? []) as unknown[];
     const stats = (d.exerciseStats ?? []) as unknown[];
     const days = (d.studyLog ?? []) as unknown[];
-    for (const [name, v] of [["entries", entries], ["cards", cards], ["reviewStates", states], ["exerciseStats", stats], ["studyLog", days]] as const) {
+    const texts = (d.texts ?? []) as unknown[]; // absent des sauvegardes faites avant la bibliothèque de textes
+    for (const [name, v] of [["entries", entries], ["cards", cards], ["reviewStates", states], ["exerciseStats", stats], ["studyLog", days], ["texts", texts]] as const) {
       need(Array.isArray(v), `La liste « ${name} » est invalide.`);
     }
     entries.forEach(checkEntry);
@@ -193,6 +207,7 @@ export function parseBackup(text: string): ParseResult {
     states.forEach(checkState);
     stats.forEach(checkStat);
     days.forEach(checkDay);
+    texts.forEach(checkText);
 
     const warnings: string[] = [];
     const entryList = dedupeById(entries as Entry[], (e) => e.id, warnings, "entrées");
@@ -200,6 +215,7 @@ export function parseBackup(text: string): ParseResult {
     const stateList = dedupeById(states as ReviewState[], (s) => s.cardId, warnings, "états de révision");
     const statList = dedupeById(stats as ExerciseStat[], (s) => s.exerciseId, warnings, "statistiques d'exercices");
     const dayList = dedupeById(days as StudyDay[], (s) => s.key, warnings, "journées d'étude");
+    const textList = dedupeById(texts as TextItem[], (t) => t.id, warnings, "textes");
 
     const entryIds = new Set(entryList.map((e) => e.id));
     for (const c of cardList) {
@@ -218,6 +234,7 @@ export function parseBackup(text: string): ParseResult {
         reviewStates: stateList,
         exerciseStats: statList,
         studyLog: dayList,
+        texts: textList,
         settings: normalizeSettings(d.settings),
       },
     };
@@ -383,6 +400,13 @@ export function mergeSnapshots(existing: Snapshot, incoming: Snapshot): { snapsh
     });
   }
 
+  // textes : même identifiant → le plus récemment modifié l'emporte
+  const texts = new Map<string, TextItem>(existing.texts.map((t) => [t.id, t]));
+  for (const t of incoming.texts) {
+    const cur = texts.get(t.id);
+    if (!cur || t.updatedAt > cur.updatedAt) texts.set(t.id, t);
+  }
+
   return {
     snapshot: {
       entries: [...entries.values()],
@@ -390,6 +414,7 @@ export function mergeSnapshots(existing: Snapshot, incoming: Snapshot): { snapsh
       reviewStates: [...states.values()],
       exerciseStats: [...stats.values()],
       studyLog: [...days.values()],
+      texts: [...texts.values()],
       settings: existing.settings,
     },
     report,

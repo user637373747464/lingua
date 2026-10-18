@@ -186,12 +186,30 @@ export interface Settings {
   langs: Record<Lang, LangSettings>;
 }
 
+export type TextKind = "text" | "article" | "podcast";
+
+/** Un texte à lire (collé par l'utilisateur) et/ou un lien (article, podcast, vidéo) avec ses notes. */
+export interface TextItem {
+  id: string;
+  lang: Lang;
+  kind: TextKind;
+  title: string;
+  url?: string;
+  body?: string; // texte collé, lisible avec les mots tactiles
+  notes?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export const MAX_TEXT_LENGTH = 200_000;
+
 export interface Snapshot {
   entries: Entry[];
   cards: Card[];
   reviewStates: ReviewState[];
   exerciseStats: ExerciseStat[];
   studyLog: StudyDay[];
+  texts: TextItem[];
   settings: Settings;
 }
 
@@ -238,6 +256,7 @@ export function emptySnapshot(): Snapshot {
     reviewStates: [],
     exerciseStats: [],
     studyLog: [],
+    texts: [],
     settings: structuredCloneSafe(DEFAULT_SETTINGS),
   };
 }

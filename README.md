@@ -76,6 +76,8 @@ Ensuite, Lingua s'ouvre même sans connexion.
   Si tu utilises l'**indice**, la meilleure note possible est « Difficile ». « Je ne sais pas » compte comme un échec honnête : la carte revient dans la session puis dans 10 minutes.
 - **Exercices** : QCM, phrases à trous, phrases à remettre en ordre, par thème et niveau. Les erreurs reviennent en priorité.
 - **Progression** : jours d'affilée, minutes d'étude, taux de réussite (avec ou sans indice), QCM contre écriture, cartes difficiles, thèmes à retravailler.
+- **Lecture** : colle un texte (article, extrait, message) et **touche un mot** : si tu l'as déjà dans ton dictionnaire, tu vois sa fiche (les mots connus sont soulignés en pointillés, même conjugués ou au pluriel) ; sinon tu l'ajoutes en quelques secondes avec sa traduction, et la **phrase d'origine est gardée comme exemple**. Un lien « Chercher sur WordReference / Jisho » s'ouvre dans le navigateur (Internet nécessaire).
+- **Actualités** et **Podcasts / vidéos** : ta bibliothèque de liens avec notes, et une liste de **sources conseillées** (VOA Learning English, News in Levels, BBC Learning English ; NHK News Web Easy, Nihongo con Teppei). Lingua **n'affiche pas** ces sites et ne copie rien (les navigateurs l'interdisent) : tu ouvres le lien, tu copies le texte de l'article ou la transcription, tu le colles dans la fiche, et tous les mots deviennent touchables.
 - **Voix** : le bouton 🔊 utilise les voix de ton appareil. Si aucune voix japonaise n'est installée : *Réglages iPhone › Accessibilité › Contenu énoncé › Voix › Japonais*.
 
 ### Importer une liste de mots (CSV ou JSON)
@@ -96,11 +98,16 @@ Plusieurs traductions : sépare-les par `;`. Les mots déjà présents sont igno
 
 **Fait (phase 1 du cahier des charges + une partie de la phase 2)** : dictionnaire bilingue, cartes et répétition espacée, exercices (34 en anglais, 51 en japonais), TTS, statistiques, sauvegarde/restauration, import CSV/JSON, mode hors ligne, thème clair/sombre, taille du texte.
 
-**Pas encore fait (affichés « Prochainement »)** : écriture des kana/kanji (tracé), lecture avec dictionnaire au toucher, actualités, podcasts/vidéos, histoires graduées, conversation. Ce sont les phases 2 et 3 : on les ajoutera une par une.
+**Ajouté ensuite** : lecture avec mots touchables, actualités, podcasts/vidéos (bibliothèque + sources conseillées).
 
-**Testé** : 66 tests automatiques de la logique (répétition espacée, vérification des réponses, romaji, sauvegarde/fusion, import CSV, exercices, statistiques) + un parcours complet dans un vrai navigateur (Chromium) : ajout/modification/suppression de mots, révisions, exercices, import CSV, export/import de sauvegarde (fusion et remplacement), thème sombre, mode hors ligne, effacement total, écran téléphone et ordinateur.
+**Pas encore fait (affichés « Prochainement »)** : écriture des kana/kanji (tracé), histoires graduées, conversation. On les ajoutera une par une.
+
+**À savoir sur la lecture** : Lingua ne contient **aucun dictionnaire intégré** (il fonctionne hors ligne et gratuitement) : elle ne reconnaît que **les mots que tu as toi-même ajoutés**. Pour un mot inconnu, tu saisis toi-même la traduction (ou tu cliques sur le lien WordReference / Jisho). La reconnaissance des mots conjugués est une approximation : elle peut se tromper ou rater un mot, et ne remplace pas un vrai analyseur grammatical. Un texte peut faire jusqu'à 200 000 caractères.
+
+**Testé** : 81 tests automatiques de la logique (répétition espacée, vérification des réponses, romaji, sauvegarde/fusion, import CSV, exercices, statistiques, lecteur de mots) + un parcours complet dans un vrai navigateur (Chromium) : ajout/modification/suppression de mots, révisions, exercices, import CSV, les nouveaux écrans de lecture/actualités/podcasts, la mise à jour de ta base de données existante vers la nouvelle version (tes mots sont conservés), export/import de sauvegarde (fusion et remplacement), thème sombre, mode hors ligne, effacement total, écran téléphone et ordinateur.
 
 **Pas testé (je n'ai pas pu)** :
+- les **adresses des sources conseillées** : je n'ai pu vérifier à la main que VOA Learning English, News in Levels et Nihongo con Teppei. **NHK News Web Easy et BBC Learning English n'ont pas pu être vérifiés** (accès bloqué depuis mon environnement) ; si un lien ne s'ouvre pas, cherche le nom sur Internet ;
 - sur un vrai **iPhone/iPad/Safari** (les voix, l'installation sur l'écran d'accueil et la conservation des données y varient) ;
 - la commande **`next build`** et la publication GitHub elle-même : le réseau de mon environnement bloquait le téléchargement des paquets. Le code a été vérifié avec un autre outil de construction. **Si l'onglet Actions affiche une erreur rouge, copie-m'en le texte, je corrige.**
 
@@ -110,12 +117,12 @@ Plusieurs traductions : sépare-les par `;`. Les mots déjà présents sont igno
 
 ## 6. Pour modifier le programme (facultatif)
 
-Il faut [Node.js 20+](https://nodejs.org).
+Il faut [Node.js 22+](https://nodejs.org).
 
 ```bash
 npm install      # une seule fois
 npm run dev      # lance Lingua sur http://localhost:3000
-npm test         # lance les 66 tests
+npm test         # lance les 81 tests
 npm run typecheck
 npm run build    # fabrique le site dans le dossier "out"
 npm run preview  # l'ouvre pour vérifier
