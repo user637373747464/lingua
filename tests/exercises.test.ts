@@ -72,17 +72,22 @@ test("série : pas de doublon, priorité aux exercices jamais faits ou ratés", 
   const pool = exercisesFor("en");
   const stats: ExerciseStat[] = pool.slice(0, 20).map((e) => ({ exerciseId: e.id, lang: "en", topic: e.topic, level: e.level, tries: 3, correct: 3, lastAt: 1, lastCorrect: true }));
   stats[0] = { ...stats[0], lastCorrect: false, correct: 1 };
+  const N = 3000;
   let failedFirst = 0;
+  let doneRight = 0; // apparitions des 19 exercices réussis
   let untriedPicked = 0;
-  for (let seed = 1; seed <= 200; seed++) {
+  for (let seed = 1; seed <= N; seed++) {
     const s = pickSeries(pool, stats, 10, seeded(seed));
     assert.equal(s.length, 10);
     assert.equal(new Set(s.map((e) => e.id)).size, 10);
     if (s.some((e) => e.id === pool[0].id)) failedFirst++;
+    doneRight += s.filter((e) => stats.slice(1).some((x) => x.exerciseId === e.id)).length;
     untriedPicked += s.filter((e) => !stats.find((x) => x.exerciseId === e.id)).length;
   }
-  assert.ok(failedFirst > 70, `l'exercice raté revient souvent (${failedFirst}/200)`);
-  assert.ok(untriedPicked / 200 > 4, `${untriedPicked / 200} jamais faits par série en moyenne`);
+  // un exercice raté (poids 3) doit revenir nettement plus souvent qu'un exercice réussi (poids 1)
+  const perDoneRight = doneRight / 19;
+  assert.ok(failedFirst > perDoneRight * 2, `l'exercice raté (${failedFirst}) ne revient pas assez face à un exercice réussi (${perDoneRight.toFixed(1)})`);
+  assert.ok(untriedPicked / N > 4, `${untriedPicked / N} jamais faits par série en moyenne`);
   assert.equal(pickSeries(pool.slice(0, 3), [], 10).length, 3);
 });
 

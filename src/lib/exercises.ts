@@ -5,6 +5,12 @@ import { checkAnswer } from "./answers";
 import { Rng, shuffle } from "./cards";
 import { EXERCISES_EN } from "./content/exercises-en";
 import { EXERCISES_JA } from "./content/exercises-ja";
+import { EXERCISES_EN_A } from "./content/exercises-en-2";
+import { EXERCISES_EN_B } from "./content/exercises-en-3";
+import { EXERCISES_JA_A } from "./content/exercises-ja-2";
+import { EXERCISES_JA_B } from "./content/exercises-ja-3";
+import { EXERCISES_EN_C } from "./content/exercises-en-4";
+import { EXERCISES_JA_C } from "./content/exercises-ja-4";
 
 interface BaseExercise {
   id: string;
@@ -38,7 +44,7 @@ export interface OrderExercise extends BaseExercise {
 export type Exercise = McqExercise | FillExercise | OrderExercise;
 export type ExerciseResponse = number | string | string[];
 
-export const ALL_EXERCISES: Exercise[] = [...EXERCISES_EN, ...EXERCISES_JA];
+export const ALL_EXERCISES: Exercise[] = [...EXERCISES_EN, ...EXERCISES_EN_A, ...EXERCISES_EN_B, ...EXERCISES_EN_C, ...EXERCISES_JA, ...EXERCISES_JA_A, ...EXERCISES_JA_B, ...EXERCISES_JA_C];
 
 export function exercisesFor(lang: Lang): Exercise[] {
   return ALL_EXERCISES.filter((e) => e.lang === lang);

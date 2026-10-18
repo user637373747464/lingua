@@ -1,5 +1,6 @@
 "use client";
 
+import { shuffle } from "../lib/cards";
 import React, { useMemo, useRef, useState } from "react";
 import { Lang, LANG_INFO } from "../lib/types";
 import { useData } from "../lib/store";
@@ -26,6 +27,8 @@ function ExerciseRunner({
   const [chosen, setChosen] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
   const tokens = useMemo(() => (ex.type === "order" ? shuffledTokens(ex.words) : []), [ex]);
+  // l'ordre des choix est mélangé à chaque exercice (la bonne réponse ne doit pas être à une place prévisible)
+  const choiceOrder = useMemo(() => (ex.type === "mcq" ? shuffle(ex.choices.map((_, i) => i)) : []), [ex]);
   const [picked, setPicked] = useState<number[]>([]);
   const [verdict, setVerdict] = useState<{ correct: boolean; almost?: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -63,7 +66,8 @@ function ExerciseRunner({
 
       {ex.type === "mcq" && (
         <ul className="options" role="list">
-          {ex.choices.map((c, i) => {
+          {choiceOrder.map((i, rank) => {
+            const c = ex.choices[i];
             const state = !verdict ? "" : i === ex.correct ? "right" : i === chosen ? "wrong" : "dim";
             return (
               <li key={i}>
@@ -75,7 +79,7 @@ function ExerciseRunner({
                     answer(i);
                   }}
                 >
-                  <span className="key">{i + 1}</span>
+                  <span className="key">{rank + 1}</span>
                   <Txt lang={lang}>{c}</Txt>
                   {state === "right" && <Icon name="check" size={18} />}
                   {state === "wrong" && <Icon name="x" size={18} />}
@@ -180,7 +184,7 @@ export default function Exercises({ lang }: { lang: Lang }) {
   const levels = useMemo(() => levelsFor(lang), [lang]);
   const [topic, setTopic] = useState("");
   const [level, setLevel] = useState("");
-  const [size, setSize] = useState<"5" | "10" | "20">("10");
+  const [size, setSize] = useState<"5" | "10" | "20" | "50">("10");
   const [series, setSeries] = useState<Exercise[] | null>(null);
   const [index, setIndex] = useState(0);
   const [results, setResults] = useState<Result[]>([]);
@@ -295,6 +299,7 @@ export default function Exercises({ lang }: { lang: Lang }) {
               { value: "5", label: "5" },
               { value: "10", label: "10" },
               { value: "20", label: "20" },
+              { value: "50", label: "50" },
             ]}
             onChange={setSize}
           />
