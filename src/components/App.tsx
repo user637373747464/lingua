@@ -14,6 +14,7 @@ import Cards from "./Cards";
 import Exercises from "./Exercises";
 import ProgressPage from "./Progress";
 import SettingsPage from "./Settings";
+import { LessonsPage, LessonView } from "./Lessons";
 import { LibraryPage, TextView, isSection } from "./Library";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -49,6 +50,10 @@ function Screen() {
       return <Cards lang={a} />;
     case "exercises":
       return <Exercises lang={a} />;
+    case "lessons":
+      if (!c) return <LessonsPage lang={a} />;
+      if (!d) return <LessonView lang={a} id={c} />;
+      return <NotFound />;
     case "reading":
     case "news":
     case "audio":

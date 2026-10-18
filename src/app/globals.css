@@ -382,3 +382,17 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 @media (min-width: 900px) {
   .reader-panel { bottom: 0; left: 50%; right: auto; width: 640px; transform: translateX(-50%); border: 1px solid var(--line); }
 }
+
+/* ---------- Leçons ---------- */
+.lesson { line-height: 1.6; }
+.lesson p { margin: 0; }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.ltable { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+.ltable th, .ltable td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--line); min-width: 90px; }
+.ltable th { background: var(--accent-soft); font-weight: 650; white-space: nowrap; }
+.ltable tr:last-child td { border-bottom: none; }
+.lesson-list { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 6px; }
+.lesson-ex { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; }
+.lesson-ex-text { font-size: 1.1rem; font-weight: 600; }
+.notice.tip { display: flex; gap: 10px; align-items: flex-start; background: var(--accent-soft); color: var(--ink); }
+.ltable td[lang="ja"] { min-width: 150px; }

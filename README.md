@@ -78,6 +78,7 @@ Ensuite, Lingua s'ouvre même sans connexion.
 - **Progression** : jours d'affilée, minutes d'étude, taux de réussite (avec ou sans indice), QCM contre écriture, cartes difficiles, thèmes à retravailler.
 - **Lecture** : colle un texte (article, extrait, message) et **touche un mot** : si tu l'as déjà dans ton dictionnaire, tu vois sa fiche (les mots connus sont soulignés en pointillés, même conjugués ou au pluriel) ; sinon tu l'ajoutes en quelques secondes avec sa traduction, et la **phrase d'origine est gardée comme exemple**. Un lien « Chercher sur WordReference / Jisho » s'ouvre dans le navigateur (Internet nécessaire).
 - **Actualités** et **Podcasts / vidéos** : ta bibliothèque de liens avec notes, et une liste de **sources conseillées** (VOA Learning English, News in Levels, BBC Learning English ; NHK News Web Easy, Nihongo con Teppei). Lingua **n'affiche pas** ces sites et ne copie rien (les navigateurs l'interdisent) : tu ouvres le lien, tu copies le texte de l'article ou la transcription, tu le colles dans la fiche, et tous les mots deviennent touchables.
+- **Leçons** : fiches de grammaire écrites en français, avec exemples et tableaux : temps, conditionnels, modaux, passif, articles, **110 verbes irréguliers** (avec recherche) en anglais ; particules, groupes de verbes, formes て / ない / た, adjectifs, compteurs, heure, politesse en japonais. Rubrique rédigée à la main : si tu repères une erreur, dis-le-moi.
 - **Voix** : le bouton 🔊 utilise les voix de ton appareil. Si aucune voix japonaise n'est installée : *Réglages iPhone › Accessibilité › Contenu énoncé › Voix › Japonais*.
 
 ### Importer une liste de mots (CSV ou JSON)
@@ -104,7 +105,7 @@ Plusieurs traductions : sépare-les par `;`. Les mots déjà présents sont igno
 
 **À savoir sur la lecture** : Lingua ne contient **aucun dictionnaire intégré** (il fonctionne hors ligne et gratuitement) : elle ne reconnaît que **les mots que tu as toi-même ajoutés**. Pour un mot inconnu, tu saisis toi-même la traduction (ou tu cliques sur le lien WordReference / Jisho). La reconnaissance des mots conjugués est une approximation : elle peut se tromper ou rater un mot, et ne remplace pas un vrai analyseur grammatical. Un texte peut faire jusqu'à 200 000 caractères.
 
-**Testé** : 81 tests automatiques de la logique (répétition espacée, vérification des réponses, romaji, sauvegarde/fusion, import CSV, exercices, statistiques, lecteur de mots) + un parcours complet dans un vrai navigateur (Chromium) : ajout/modification/suppression de mots, révisions, exercices, import CSV, les nouveaux écrans de lecture/actualités/podcasts, la mise à jour de ta base de données existante vers la nouvelle version (tes mots sont conservés), export/import de sauvegarde (fusion et remplacement), thème sombre, mode hors ligne, effacement total, écran téléphone et ordinateur.
+**Testé** : 85 tests automatiques de la logique (répétition espacée, vérification des réponses, romaji, sauvegarde/fusion, import CSV, exercices, statistiques, lecteur de mots) + un parcours complet dans un vrai navigateur (Chromium) : ajout/modification/suppression de mots, révisions, exercices, import CSV, les nouveaux écrans de lecture/actualités/podcasts, la mise à jour de ta base de données existante vers la nouvelle version (tes mots sont conservés), export/import de sauvegarde (fusion et remplacement), thème sombre, mode hors ligne, effacement total, écran téléphone et ordinateur.
 
 **Pas testé (je n'ai pas pu)** :
 - les **adresses des sources conseillées** : je n'ai pu vérifier à la main que VOA Learning English, News in Levels et Nihongo con Teppei. **NHK News Web Easy et BBC Learning English n'ont pas pu être vérifiés** (accès bloqué depuis mon environnement) ; si un lien ne s'ouvre pas, cherche le nom sur Internet ;
@@ -122,7 +123,7 @@ Il faut [Node.js 22+](https://nodejs.org).
 ```bash
 npm install      # une seule fois
 npm run dev      # lance Lingua sur http://localhost:3000
-npm test         # lance les 81 tests
+npm test         # lance les 85 tests
 npm run typecheck
 npm run build    # fabrique le site dans le dossier "out"
 npm run preview  # l'ouvre pour vérifier
