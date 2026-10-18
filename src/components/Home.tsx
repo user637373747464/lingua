@@ -131,9 +131,9 @@ const MODULES: Module[] = [
   { id: "exercises", title: "Grammaire et exercices", desc: "QCM, trous, phrases à remettre en ordre", icon: "pen", href: "exercises" },
   { id: "cards", title: "Gérer les cartes", desc: "Créer, suspendre, supprimer", icon: "sliders", href: "cards" },
   { id: "writing", title: "Écriture", desc: "Kana, kanji, tracé et ordre des traits", icon: "edit", soon: true, onlyLang: "ja" },
-  { id: "reading", title: "Lecture", desc: "Textes avec dictionnaire au toucher", icon: "book", soon: true },
-  { id: "news", title: "Actualités", desc: "Tes articles enregistrés", icon: "link", soon: true },
-  { id: "audio", title: "Podcasts et vidéos", desc: "Ta bibliothèque d'écoute", icon: "speaker", soon: true },
+  { id: "reading", title: "Lecture", desc: "Textes avec dictionnaire au toucher", icon: "book", href: "reading" },
+  { id: "news", title: "Actualités", desc: "Articles, sources conseillées, mots au toucher", icon: "link", href: "news" },
+  { id: "audio", title: "Podcasts et vidéos", desc: "Ta bibliothèque d'écoute + transcriptions", icon: "speaker", href: "audio" },
   { id: "stories", title: "Histoires graduées", desc: "Lire à son niveau", icon: "book", soon: true },
   { id: "talk", title: "Conversation", desc: "Entraînement guidé", icon: "pen", soon: true },
 ];

@@ -14,6 +14,7 @@ import Cards from "./Cards";
 import Exercises from "./Exercises";
 import ProgressPage from "./Progress";
 import SettingsPage from "./Settings";
+import { LibraryPage, TextView, isSection } from "./Library";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
 export const UI_PREFS_KEY = "lingua-ui";
@@ -48,6 +49,13 @@ function Screen() {
       return <Cards lang={a} />;
     case "exercises":
       return <Exercises lang={a} />;
+    case "reading":
+    case "news":
+    case "audio":
+      if (!isSection(b)) return <NotFound />;
+      if (!c) return <LibraryPage lang={a} section={b} />;
+      if (!d) return <TextView lang={a} section={b} id={c} />;
+      return <NotFound />;
     case "dictionary":
       if (!c) return <Dictionary lang={a} />;
       if (c === "new") return <EntryEditor lang={a} initialWord={route.query.get("w") ?? ""} />;
