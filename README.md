@@ -79,6 +79,7 @@ Ensuite, Lingua s'ouvre même sans connexion.
 - **Lecture** : colle un texte (article, extrait, message) et **touche un mot** : si tu l'as déjà dans ton dictionnaire, tu vois sa fiche (les mots connus sont soulignés en pointillés, même conjugués ou au pluriel) ; sinon tu l'ajoutes en quelques secondes avec sa traduction, et la **phrase d'origine est gardée comme exemple**. Un lien « Chercher sur WordReference / Jisho » s'ouvre dans le navigateur (Internet nécessaire).
 - **Actualités** et **Podcasts / vidéos** : ta bibliothèque de liens avec notes, et une liste de **sources conseillées** (VOA Learning English, News in Levels, BBC Learning English ; NHK News Web Easy, Nihongo con Teppei). Lingua **n'affiche pas** ces sites et ne copie rien (les navigateurs l'interdisent) : tu ouvres le lien, tu copies le texte de l'article ou la transcription, tu le colles dans la fiche, et tous les mots deviennent touchables.
 - **Leçons** : fiches de grammaire écrites en français, avec exemples et tableaux : temps, conditionnels, modaux, passif, articles, **110 verbes irréguliers** (avec recherche) en anglais ; particules, groupes de verbes, formes て / ない / た, adjectifs, compteurs, heure, politesse en japonais. Rubrique rédigée à la main : si tu repères une erreur, dis-le-moi.
+- **Écriture** (japonais) : les **46 hiragana, 46 katakana, leurs variantes** (dakuten, handakuten, petits ゃ ゅ ょ っ, ー) et **80 kanji du N5**. Pour chaque caractère : le modèle **s'anime trait par trait** (numéros dans l'ordre), tu peux le **calquer** ou l'écrire **de mémoire** avec le doigt, puis « Vérifier » : ton tracé est superposé au modèle, trait par trait, avec le **sens** (départ marqué par un rond), l'**ordre**, le nombre de traits et la forme. Les erreurs sont expliquées en français (« trait n°2 dessiné à l'envers », « l'ordre n'est pas respecté », « il manque un trait »…). Un quiz de 10 caractères favorise ceux que tu rates. La taille et la position de ton dessin n'ont pas d'importance (sauf pour les petits kana : ゃ ゅ ょ っ doivent être écrits petit). Les tracés viennent de **KanjiVG** (voir plus bas).
 - **Voix** : le bouton 🔊 utilise les voix de ton appareil. Si aucune voix japonaise n'est installée : *Réglages iPhone › Accessibilité › Contenu énoncé › Voix › Japonais*.
 
 ### Importer une liste de mots (CSV ou JSON)
@@ -101,13 +102,19 @@ Plusieurs traductions : sépare-les par `;`. Les mots déjà présents sont igno
 
 **Ajouté ensuite** : lecture avec mots touchables, actualités, podcasts/vidéos (bibliothèque + sources conseillées).
 
-**Pas encore fait (affichés « Prochainement »)** : écriture des kana/kanji (tracé), histoires graduées, conversation. On les ajoutera une par une.
+**Écriture tactile** : tracé des kana et de 80 kanji, comparaison avec le sens et l'ordre des traits, quiz.
+
+**Pas encore fait (affichés « Prochainement »)** : histoires graduées, conversation. On les ajoutera une par une.
 
 **À savoir sur les exercices** : je les ai écrits moi-même et relus un par un, mais ce n'est pas un manuel agréé : si une réponse te paraît fausse ou ambiguë, ne la crois pas aveuglément et dis-le-moi. Les niveaux (A1–C2, N5–N1) sont indicatifs.
 
 **À savoir sur la lecture** : Lingua ne contient **aucun dictionnaire intégré** (il fonctionne hors ligne et gratuitement) : elle ne reconnaît que **les mots que tu as toi-même ajoutés**. Pour un mot inconnu, tu saisis toi-même la traduction (ou tu cliques sur le lien WordReference / Jisho). La reconnaissance des mots conjugués est une approximation : elle peut se tromper ou rater un mot, et ne remplace pas un vrai analyseur grammatical. Un texte peut faire jusqu'à 200 000 caractères.
 
-**Testé** : 88 tests automatiques de la logique (répétition espacée, vérification des réponses, romaji, sauvegarde/fusion, import CSV, exercices, statistiques, lecteur de mots) + un parcours complet dans un vrai navigateur (Chromium) : ajout/modification/suppression de mots, révisions, exercices, import CSV, les nouveaux écrans de lecture/actualités/podcasts, la mise à jour de ta base de données existante vers la nouvelle version (tes mots sont conservés), export/import de sauvegarde (fusion et remplacement), thème sombre, mode hors ligne, effacement total, écran téléphone et ordinateur.
+**À savoir sur l'écriture** : la comparaison est faite par un algorithme maison, pas par une intelligence artificielle. Il compare chaque trait au modèle (forme, longueur, début et fin) après avoir mis ton dessin à la même taille. Limites connues : (1) sur des tracés humains simulés, il en accepte environ 99,8 % en exigence « Normale », mais un vrai doigt sur un vrai écran est plus maladroit que ma simulation : si de bons tracés sont refusés, passe en « Large » (en « Large », des caractères voisins comme る/ろ, わ/れ/ね, ス/ヌ ou コ/ユ peuvent passer à tort ; en « Normale » et « Stricte », ces paires sont refusées) ; (2) les caractères qui ont **exactement la même forme** (へ et ヘ, par exemple) ne peuvent pas être distingués : l'application te dit ce qu'il faut écrire, elle ne peut pas deviner ; (3) les très petits détails (une petite boucle) sont jugés de façon approximative ; (4) certains caractères ont plusieurs façons d'être écrits dans la réalité (notamment certains kanji) : seul l'ordre standard de KanjiVG est accepté. **Je n'ai pas pu tester sur un iPhone** : j'ai testé avec de vrais événements souris et tactiles dans Chromium, mais pas avec ton doigt sur Safari.
+
+**Tracés : KanjiVG.** Les modèles de tracé viennent de KanjiVG (https://kanjivg.tagaini.net), © 2009–2011 Ulrich Apel et contributeurs, licence Creative Commons Attribution-ShareAlike 3.0. Le fichier `src/lib/content/strokes.ts` est une adaptation de ces données et reste donc sous la même licence (CC BY-SA 3.0). Il est fabriqué par `scripts/build-strokes.mjs`.
+
+**Testé** : 105 tests automatiques de la logique (répétition espacée, vérification des réponses, romaji, sauvegarde/fusion, import CSV, exercices, statistiques, lecteur de mots) + un parcours complet dans un vrai navigateur (Chromium) : ajout/modification/suppression de mots, révisions, exercices, import CSV, les nouveaux écrans de lecture/actualités/podcasts, l'écriture (dessin à la souris et avec des événements tactiles : tracé juste, trait à l'envers, mauvais ordre, trait manquant, petit kana, quiz), la mise à jour de ta base de données existante vers la nouvelle version (tes mots sont conservés), export/import de sauvegarde (fusion et remplacement), thème sombre, mode hors ligne, effacement total, écran téléphone et ordinateur.
 
 **Pas testé (je n'ai pas pu)** :
 - les **adresses des sources conseillées** : je n'ai pu vérifier à la main que VOA Learning English, News in Levels et Nihongo con Teppei. **NHK News Web Easy et BBC Learning English n'ont pas pu être vérifiés** (accès bloqué depuis mon environnement) ; si un lien ne s'ouvre pas, cherche le nom sur Internet ;
@@ -125,7 +132,7 @@ Il faut [Node.js 22+](https://nodejs.org).
 ```bash
 npm install      # une seule fois
 npm run dev      # lance Lingua sur http://localhost:3000
-npm test         # lance les 88 tests
+npm test         # lance les 105 tests
 npm run typecheck
 npm run build    # fabrique le site dans le dossier "out"
 npm run preview  # l'ouvre pour vérifier

@@ -16,6 +16,7 @@ import {
   MAX_TEXT_LENGTH,
   POS_LIST,
   structuredCloneSafe,
+  WritingStat,
 } from "./types";
 import { entryKey, normalizeForSearch } from "./search";
 
@@ -40,6 +41,7 @@ export function createBackup(snapshot: Snapshot, now: number): BackupFile {
       cards: snapshot.cards.length,
       reviewStates: snapshot.reviewStates.length,
       texts: snapshot.texts.length,
+      writing: snapshot.writing.length,
     },
     data: snapshot,
   };
@@ -117,6 +119,13 @@ function checkDay(x: unknown, i: number): void {
   const where = `journée d'étude n°${i + 1}`;
   need(isObj(x) && isStr(x.key) && isStr(x.date) && isLang(x.lang), `${where} : format invalide`);
   need(isNum(x.seconds) && isNum(x.answers) && isNum(x.correct), `${where} : nombres invalides`);
+}
+
+function checkWriting(x: unknown, i: number): void {
+  const where = `résultat d'écriture n°${i + 1}`;
+  need(isObj(x) && isStr(x.char) && x.char.length > 0 && x.char.length <= 2, `${where} : format invalide`);
+  need(x.kind === "hiragana" || x.kind === "katakana" || x.kind === "kanji", `${where} : type invalide`);
+  need(isNum(x.tries) && isNum(x.correct) && isNum(x.lastAt) && typeof x.lastCorrect === "boolean", `${where} : nombres invalides`);
 }
 
 function checkText(x: unknown, i: number): void {
@@ -199,7 +208,8 @@ export function parseBackup(text: string): ParseResult {
     const stats = (d.exerciseStats ?? []) as unknown[];
     const days = (d.studyLog ?? []) as unknown[];
     const texts = (d.texts ?? []) as unknown[]; // absent des sauvegardes faites avant la bibliothèque de textes
-    for (const [name, v] of [["entries", entries], ["cards", cards], ["reviewStates", states], ["exerciseStats", stats], ["studyLog", days], ["texts", texts]] as const) {
+    const writing = (d.writing ?? []) as unknown[]; // absent des sauvegardes faites avant l'écriture
+    for (const [name, v] of [["writing", writing], ["entries", entries], ["cards", cards], ["reviewStates", states], ["exerciseStats", stats], ["studyLog", days], ["texts", texts]] as const) {
       need(Array.isArray(v), `La liste « ${name} » est invalide.`);
     }
     entries.forEach(checkEntry);
@@ -208,6 +218,7 @@ export function parseBackup(text: string): ParseResult {
     stats.forEach(checkStat);
     days.forEach(checkDay);
     texts.forEach(checkText);
+    writing.forEach(checkWriting);
 
     const warnings: string[] = [];
     const entryList = dedupeById(entries as Entry[], (e) => e.id, warnings, "entrées");
@@ -216,6 +227,7 @@ export function parseBackup(text: string): ParseResult {
     const statList = dedupeById(stats as ExerciseStat[], (s) => s.exerciseId, warnings, "statistiques d'exercices");
     const dayList = dedupeById(days as StudyDay[], (s) => s.key, warnings, "journées d'étude");
     const textList = dedupeById(texts as TextItem[], (t) => t.id, warnings, "textes");
+    const writingList = dedupeById(writing as WritingStat[], (w) => w.char, warnings, "résultats d'écriture");
 
     const entryIds = new Set(entryList.map((e) => e.id));
     for (const c of cardList) {
@@ -235,6 +247,7 @@ export function parseBackup(text: string): ParseResult {
         exerciseStats: statList,
         studyLog: dayList,
         texts: textList,
+        writing: writingList,
         settings: normalizeSettings(d.settings),
       },
     };
@@ -407,6 +420,13 @@ export function mergeSnapshots(existing: Snapshot, incoming: Snapshot): { snapsh
     if (!cur || t.updatedAt > cur.updatedAt) texts.set(t.id, t);
   }
 
+  // écriture : pour chaque caractère, le compteur le plus élevé
+  const writing = new Map<string, WritingStat>(existing.writing.map((w) => [w.char, w]));
+  for (const w of incoming.writing) {
+    const cur = writing.get(w.char);
+    if (!cur || w.tries > cur.tries) writing.set(w.char, w);
+  }
+
   return {
     snapshot: {
       entries: [...entries.values()],
@@ -415,6 +435,7 @@ export function mergeSnapshots(existing: Snapshot, incoming: Snapshot): { snapsh
       exerciseStats: [...stats.values()],
       studyLog: [...days.values()],
       texts: [...texts.values()],
+      writing: [...writing.values()],
       settings: existing.settings,
     },
     report,

@@ -19,6 +19,7 @@ import {
   StudyDay,
   TextItem,
   emptySnapshot,
+  WritingStat,
 } from "./types";
 import * as db from "./db";
 import { newReviewState, schedule } from "./srs";
@@ -52,6 +53,7 @@ export interface Store {
   deleteCard(cardId: string): Promise<void>;
   answerCard(args: AnswerArgs): Promise<void>;
   answerExercise(exercise: Exercise, correct: boolean, elapsedSec: number): Promise<void>;
+  recordWriting(char: string, kind: WritingStat["kind"], correct: boolean): Promise<void>;
   saveText(item: TextItem): Promise<void>;
   deleteText(id: string): Promise<void>;
   updateSettings(fn: (s: Settings) => Settings): Promise<void>;
@@ -316,6 +318,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           const next = normalizeSettings(fn(cur.settings));
           await db.write([{ store: "settings", put: [db.settingsRecord(next)] }]);
           commit({ ...cur, settings: next });
+        }),
+
+      recordWriting: (char, kind, correct) =>
+        enqueue(async () => {
+          const cur = ref.current;
+          const now = Date.now();
+          const prev = cur.writing.find((w) => w.char === char) ?? { char, kind, tries: 0, correct: 0, lastAt: now, lastCorrect: false };
+          const stat: WritingStat = { ...prev, tries: prev.tries + 1, correct: prev.correct + (correct ? 1 : 0), lastAt: now, lastCorrect: correct };
+          await db.write([{ store: "writing", put: [stat] }]);
+          commit({ ...cur, writing: upsert(cur.writing, stat, (w) => w.char) });
         }),
 
       saveText: (item) =>

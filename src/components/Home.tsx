@@ -131,7 +131,7 @@ const MODULES: Module[] = [
   { id: "exercises", title: "Grammaire et exercices", desc: "QCM, trous, phrases à remettre en ordre", icon: "pen", href: "exercises" },
   { id: "lessons", title: "Leçons", desc: "Fiches de grammaire, temps, verbes irréguliers", icon: "bulb", href: "lessons" },
   { id: "cards", title: "Gérer les cartes", desc: "Créer, suspendre, supprimer", icon: "sliders", href: "cards" },
-  { id: "writing", title: "Écriture", desc: "Kana, kanji, tracé et ordre des traits", icon: "edit", soon: true, onlyLang: "ja" },
+  { id: "writing", title: "Écriture", desc: "Kana, kanji, tracé et ordre des traits", icon: "edit", href: "writing", onlyLang: "ja" },
   { id: "reading", title: "Lecture", desc: "Textes avec dictionnaire au toucher", icon: "book", href: "reading" },
   { id: "news", title: "Actualités", desc: "Articles, sources conseillées, mots au toucher", icon: "link", href: "news" },
   { id: "audio", title: "Podcasts et vidéos", desc: "Ta bibliothèque d'écoute + transcriptions", icon: "speaker", href: "audio" },

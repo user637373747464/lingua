@@ -146,6 +146,16 @@ export interface ExerciseStat {
   lastCorrect: boolean;
 }
 
+/** Résultats d'écriture pour un caractère (kana ou kanji) : combien d'essais, combien réussis. */
+export interface WritingStat {
+  char: string;
+  kind: "hiragana" | "katakana" | "kanji";
+  tries: number;
+  correct: number;
+  lastAt: number;
+  lastCorrect: boolean;
+}
+
 export interface KindCounter {
   n: number;
   ok: number;
@@ -210,6 +220,7 @@ export interface Snapshot {
   exerciseStats: ExerciseStat[];
   studyLog: StudyDay[];
   texts: TextItem[];
+  writing: WritingStat[];
   settings: Settings;
 }
 
@@ -257,6 +268,7 @@ export function emptySnapshot(): Snapshot {
     exerciseStats: [],
     studyLog: [],
     texts: [],
+    writing: [],
     settings: structuredCloneSafe(DEFAULT_SETTINGS),
   };
 }
