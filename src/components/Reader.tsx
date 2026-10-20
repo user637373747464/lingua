@@ -7,6 +7,7 @@ import { Token, buildLookup, sentenceAt, splitParagraphs, tokenize } from "../li
 import { entryGloss } from "../lib/cards";
 import { findDuplicate } from "../lib/search";
 import { uid } from "../lib/ids";
+import { Gloss, findGloss } from "../lib/stories";
 import { Icon, SpeakButton, Txt, useToast } from "./ui";
 
 const CHUNK = 30; // paragraphes affichés d'un coup (les très longs textes restent fluides)
@@ -16,7 +17,7 @@ interface Selected {
   i: number; // numéro du mot dans le paragraphe
 }
 
-export default function Reader({ lang, text, sourceTitle, sourceUrl }: { lang: Lang; text: string; sourceTitle?: string; sourceUrl?: string }) {
+export default function Reader({ lang, text, sourceTitle, sourceUrl, hints }: { lang: Lang; text: string; sourceTitle?: string; sourceUrl?: string; hints?: Gloss[] }) {
   const { snapshot } = useData();
   const [shown, setShown] = useState(CHUNK);
   const [sel, setSel] = useState<Selected | null>(null);
@@ -55,7 +56,7 @@ export default function Reader({ lang, text, sourceTitle, sourceUrl }: { lang: L
           </button>
         )}
       </div>
-      {tok && par && <WordPanel key={`${sel!.p}:${sel!.i}`} lang={lang} token={tok} paragraph={par.text} sourceTitle={sourceTitle} sourceUrl={sourceUrl} onClose={() => setSel(null)} />}
+      {tok && par && <WordPanel key={`${sel!.p}:${sel!.i}`} lang={lang} token={tok} paragraph={par.text} sourceTitle={sourceTitle} sourceUrl={sourceUrl} hint={hints ? findGloss(hints, tok.text, lang) : undefined} onClose={() => setSel(null)} />}
       {tok && <div className="reader-spacer" aria-hidden="true" />}
     </>
   );
@@ -72,6 +73,7 @@ function WordPanel({
   paragraph,
   sourceTitle,
   sourceUrl,
+  hint,
   onClose,
 }: {
   lang: Lang;
@@ -79,16 +81,18 @@ function WordPanel({
   paragraph: string;
   sourceTitle?: string;
   sourceUrl?: string;
+  hint?: Gloss;
   onClose: () => void;
 }) {
   const { snapshot, saveEntry } = useData();
   const notify = useToast();
   const sentence = useMemo(() => sentenceAt(paragraph, token.start, token.end), [paragraph, token]);
   const match = token.match;
-  const [word, setWord] = useState(token.text);
-  const [reading, setReading] = useState("");
-  const [tr, setTr] = useState("");
-  const [pos, setPos] = useState<Pos>("noun");
+  // « Mots utiles » d'une histoire : on pré-remplit la fiche (modifiable) avec la forme du dictionnaire
+  const [word, setWord] = useState(hint ? hint.lemma ?? hint.w : token.text);
+  const [reading, setReading] = useState(hint ? hint.lemmaReading ?? hint.reading ?? "" : "");
+  const [tr, setTr] = useState(hint?.fr ?? "");
+  const [pos, setPos] = useState<Pos>(hint?.pos ?? "noun");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const ja = lang === "ja";

@@ -16,6 +16,7 @@ import SettingsPage from "./Settings";
 import { LessonsPage, LessonView } from "./Lessons";
 import { WritingChar, WritingPage, WritingQuiz } from "./Writing";
 import { LibraryPage, TextView, isSection } from "./Library";
+import { StoriesPage, StoryView } from "./Stories";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
 export const UI_PREFS_KEY = "lingua-ui";
@@ -75,6 +76,10 @@ function Screen() {
       if (!isSection(b)) return <NotFound />;
       if (!c) return <LibraryPage lang={a} section={b} />;
       if (!d) return <TextView lang={a} section={b} id={c} />;
+      return <NotFound />;
+    case "stories":
+      if (!c) return <StoriesPage lang={a} />;
+      if (!d) return <StoryView lang={a} id={c} />;
       return <NotFound />;
     case "dictionary":
       if (!c) return <Dictionary lang={a} />;

@@ -128,7 +128,7 @@ const MODULES: Module[] = [
   { id: "reading", title: "Lecture", desc: "Textes avec dictionnaire au toucher", icon: "book", href: "reading" },
   { id: "news", title: "Actualités", desc: "Articles, sources conseillées, mots au toucher", icon: "link", href: "news" },
   { id: "audio", title: "Podcasts et vidéos", desc: "Ta bibliothèque d'écoute + transcriptions", icon: "speaker", href: "audio" },
-  { id: "stories", title: "Histoires graduées", desc: "Lire à son niveau", icon: "book", soon: true },
+  { id: "stories", title: "Histoires graduées", desc: "Lire à son niveau, 1 à 7 minutes", icon: "book", href: "stories" },
   { id: "talk", title: "Conversation", desc: "Entraînement guidé", icon: "pen", soon: true },
   { id: "cards", title: "Gérer les cartes", desc: "Chercher, modifier, déplacer, supprimer", icon: "sliders", href: "cards" },
 ];
