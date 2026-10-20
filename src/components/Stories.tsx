@@ -27,7 +27,7 @@ function saveRead(ids: string[]) {
   }
 }
 
-const LEVEL_HINT: Record<StoryLevel, string> = {
+export const LEVEL_HINT: Record<StoryLevel, string> = {
   A1: "débutant", A2: "élémentaire", B1: "intermédiaire", B2: "intermédiaire +", C1: "avancé",
   N5: "débutant", N4: "élémentaire", N3: "intermédiaire", N2: "intermédiaire +", N1: "avancé",
 };

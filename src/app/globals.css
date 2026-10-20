@@ -468,3 +468,22 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .row.tight { gap: 6px; }
 .source-card .btn.small { min-height: 44px; }
+
+/* ---------- conversation ---------- */
+.chat { display: flex; flex-direction: column; gap: 10px; }
+.bubble { display: flex; align-items: flex-start; gap: 4px; max-width: 92%; }
+.bubble.npc { align-self: flex-start; }
+.bubble.me { align-self: flex-end; flex-direction: row-reverse; }
+.bubble-main { padding: 10px 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); overflow-wrap: anywhere; min-width: 0; }
+.bubble.npc .bubble-main { border-bottom-left-radius: 4px; }
+.bubble.me .bubble-main { border-bottom-right-radius: 4px; background: var(--accent-soft); border-color: transparent; }
+.bubble-name { font-size: 0.78rem; font-weight: 650; color: var(--ink-soft); margin-bottom: 2px; }
+.bubble-text { font-size: 1.05rem; line-height: 1.45; }
+.bubble-fr { margin-top: 4px; font-size: 0.86rem; color: var(--ink-soft); }
+.bubble .btn.icon { flex: none; }
+.opt-fr { display: block; margin-top: 2px; font-size: 0.86rem; color: var(--ink-soft); }
+.option.wrong .opt-fr { color: inherit; opacity: 0.85; }
+.why { padding: 10px 12px; border-radius: 10px; background: var(--ko-soft); border: 1px solid var(--ko); font-size: 0.95rem; }
+.recap { padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.recap:last-child { border-bottom: 0; padding-bottom: 0; }
+.good { padding: 10px 12px; border-radius: 10px; background: var(--ok-soft); border: 1px solid var(--ok); font-size: 0.95rem; }
