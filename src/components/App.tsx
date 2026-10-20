@@ -9,8 +9,7 @@ import Home, { LangDashboard } from "./Home";
 import Dictionary from "./Dictionary";
 import EntryView from "./EntryView";
 import EntryEditor from "./EntryEditor";
-import Study from "./Study";
-import Cards from "./Cards";
+import { CardsManager, DeckPage, DeckPlay, DecksPage } from "./Decks";
 import Exercises from "./Exercises";
 import ProgressPage from "./Progress";
 import SettingsPage from "./Settings";
@@ -46,9 +45,19 @@ function Screen() {
   if (!b) return <LangDashboard lang={a} />;
   switch (b) {
     case "study":
-      return <Study lang={a} />;
+      if (!c) return <DecksPage lang={a} />;
+      if (!d) return <DeckPage lang={a} deckId={c} />;
+      if (d === "play") {
+        const mode = route.query.get("mode");
+        const dir = route.query.get("dir");
+        const m = mode === "qcm" || mode === "write" || mode === "match" ? mode : "flip";
+        const dd = dir === "from-fr" || dir === "mixed" ? dir : "to-fr";
+        const n = Number(route.query.get("n"));
+        return <DeckPlay lang={a} deckId={c} mode={m} dir={dd} size={Number.isFinite(n) && n >= 0 ? n : 10} />;
+      }
+      return <NotFound />;
     case "cards":
-      return <Cards lang={a} />;
+      return <CardsManager lang={a} />;
     case "exercises":
       return <Exercises lang={a} />;
     case "lessons":

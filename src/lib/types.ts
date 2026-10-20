@@ -60,6 +60,7 @@ export interface Example {
 export interface Sense {
   id: string;
   pos: Pos;
+  gender?: "m" | "f"; // genre de la traduction française (nom)
   posDetail?: string;
   definition?: string;
   translations: string[];
@@ -146,6 +147,39 @@ export interface ExerciseStat {
   lastCorrect: boolean;
 }
 
+// ---------- paquets de flashcards (indépendants du dictionnaire) ----------
+
+/** Progression d'une carte dans UN sens (langue étudiée → français, ou français → langue étudiée). */
+export interface CardProg {
+  box: number; // 0 (à apprendre) à 5 (bien retenue)
+  seen: number;
+  ok: number;
+  lastAt?: number;
+  due: number; // à revoir à partir de cette date
+}
+
+export interface Deck {
+  id: string;
+  lang: Lang;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+  bestMatchMs?: number; // meilleur temps au jeu « Associer » (6 paires)
+}
+
+export interface DeckCard {
+  id: string;
+  deckId: string;
+  lang: Lang;
+  front: string; // le mot dans la langue étudiée
+  reading?: string; // lecture en kana (japonais)
+  back: string; // la traduction en français
+  createdAt: number;
+  updatedAt: number;
+  fwd: CardProg; // langue étudiée → français
+  rev: CardProg; // français → langue étudiée
+}
+
 /** Résultats d'écriture pour un caractère (kana ou kanji) : combien d'essais, combien réussis. */
 export interface WritingStat {
   char: string;
@@ -221,6 +255,8 @@ export interface Snapshot {
   studyLog: StudyDay[];
   texts: TextItem[];
   writing: WritingStat[];
+  decks: Deck[];
+  deckCards: DeckCard[];
   settings: Settings;
 }
 
@@ -269,6 +305,8 @@ export function emptySnapshot(): Snapshot {
     studyLog: [],
     texts: [],
     writing: [],
+    decks: [],
+    deckCards: [],
     settings: structuredCloneSafe(DEFAULT_SETTINGS),
   };
 }

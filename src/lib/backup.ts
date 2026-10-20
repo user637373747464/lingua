@@ -17,6 +17,8 @@ import {
   POS_LIST,
   structuredCloneSafe,
   WritingStat,
+  Deck,
+  DeckCard,
 } from "./types";
 import { entryKey, normalizeForSearch } from "./search";
 
@@ -42,6 +44,8 @@ export function createBackup(snapshot: Snapshot, now: number): BackupFile {
       reviewStates: snapshot.reviewStates.length,
       texts: snapshot.texts.length,
       writing: snapshot.writing.length,
+      decks: snapshot.decks.length,
+      deckCards: snapshot.deckCards.length,
     },
     data: snapshot,
   };
@@ -121,6 +125,25 @@ function checkDay(x: unknown, i: number): void {
   need(isNum(x.seconds) && isNum(x.answers) && isNum(x.correct), `${where} : nombres invalides`);
 }
 
+function checkProg(x: unknown): boolean {
+  return x === undefined || (isObj(x) && isNum(x.box) && isNum(x.seen) && isNum(x.ok) && isNum(x.due) && (x.lastAt === undefined || isNum(x.lastAt)));
+}
+
+function checkDeck(x: unknown, i: number): void {
+  const where = `paquet n°${i + 1}`;
+  need(isObj(x) && isStr(x.id) && x.id && isLang(x.lang) && isStr(x.name), `${where} : format invalide`);
+  need(isNum(x.createdAt) && isNum(x.updatedAt), `${where} : dates invalides`);
+  need(x.bestMatchMs === undefined || isNum(x.bestMatchMs), `${where} : meilleur temps invalide`);
+}
+
+function checkDeckCard(x: unknown, i: number): void {
+  const where = `carte de paquet n°${i + 1}`;
+  need(isObj(x) && isStr(x.id) && x.id && isStr(x.deckId) && isLang(x.lang), `${where} : format invalide`);
+  need(isStr(x.front) && isStr(x.back) && optStr(x.reading), `${where} : textes invalides`);
+  need(isNum(x.createdAt) && isNum(x.updatedAt), `${where} : dates invalides`);
+  need(checkProg(x.fwd) && checkProg(x.rev), `${where} : progression invalide`);
+}
+
 function checkWriting(x: unknown, i: number): void {
   const where = `résultat d'écriture n°${i + 1}`;
   need(isObj(x) && isStr(x.char) && x.char.length > 0 && x.char.length <= 2, `${where} : format invalide`);
@@ -166,7 +189,13 @@ export function normalizeSettings(raw: unknown): Settings {
   return base;
 }
 
-function withDefaults(entries: Entry[], cards: Card[], states: ReviewState[], days: StudyDay[]): void {
+const blankProg = (): { box: number; seen: number; ok: number; due: number } => ({ box: 0, seen: 0, ok: 0, due: 0 });
+
+function withDefaults(entries: Entry[], cards: Card[], states: ReviewState[], days: StudyDay[], deckCards: DeckCard[] = []): void {
+  for (const c of deckCards) {
+    c.fwd ??= blankProg();
+    c.rev ??= blankProg();
+  }
   for (const e of entries) {
     e.variants ??= [];
     e.inflections ??= [];
@@ -209,7 +238,9 @@ export function parseBackup(text: string): ParseResult {
     const days = (d.studyLog ?? []) as unknown[];
     const texts = (d.texts ?? []) as unknown[]; // absent des sauvegardes faites avant la bibliothèque de textes
     const writing = (d.writing ?? []) as unknown[]; // absent des sauvegardes faites avant l'écriture
-    for (const [name, v] of [["writing", writing], ["entries", entries], ["cards", cards], ["reviewStates", states], ["exerciseStats", stats], ["studyLog", days], ["texts", texts]] as const) {
+    const decks = (d.decks ?? []) as unknown[]; // absents des sauvegardes faites avant les paquets
+    const deckCards = (d.deckCards ?? []) as unknown[];
+    for (const [name, v] of [["decks", decks], ["deckCards", deckCards], ["writing", writing], ["entries", entries], ["cards", cards], ["reviewStates", states], ["exerciseStats", stats], ["studyLog", days], ["texts", texts]] as const) {
       need(Array.isArray(v), `La liste « ${name} » est invalide.`);
     }
     entries.forEach(checkEntry);
@@ -219,6 +250,8 @@ export function parseBackup(text: string): ParseResult {
     days.forEach(checkDay);
     texts.forEach(checkText);
     writing.forEach(checkWriting);
+    decks.forEach(checkDeck);
+    deckCards.forEach(checkDeckCard);
 
     const warnings: string[] = [];
     const entryList = dedupeById(entries as Entry[], (e) => e.id, warnings, "entrées");
@@ -227,6 +260,10 @@ export function parseBackup(text: string): ParseResult {
     const statList = dedupeById(stats as ExerciseStat[], (s) => s.exerciseId, warnings, "statistiques d'exercices");
     const dayList = dedupeById(days as StudyDay[], (s) => s.key, warnings, "journées d'étude");
     const textList = dedupeById(texts as TextItem[], (t) => t.id, warnings, "textes");
+    const deckList = dedupeById(decks as Deck[], (x) => x.id, warnings, "paquets");
+    const deckCardList = dedupeById(deckCards as DeckCard[], (x) => x.id, warnings, "cartes de paquets");
+    const deckIds = new Set(deckList.map((x) => x.id));
+    for (const c of deckCardList) need(deckIds.has(c.deckId), "Une carte pointe vers un paquet qui n'existe pas : fichier incohérent.");
     const writingList = dedupeById(writing as WritingStat[], (w) => w.char, warnings, "résultats d'écriture");
 
     const entryIds = new Set(entryList.map((e) => e.id));
@@ -236,7 +273,7 @@ export function parseBackup(text: string): ParseResult {
     const cardIds = new Set(cardList.map((c) => c.id));
     for (const s of stateList) need(cardIds.has(s.cardId), "Un état de révision pointe vers une carte qui n'existe pas : fichier incohérent.");
 
-    withDefaults(entryList, cardList, stateList, dayList);
+    withDefaults(entryList, cardList, stateList, dayList, deckCardList);
     return {
       ok: true,
       warnings,
@@ -248,6 +285,8 @@ export function parseBackup(text: string): ParseResult {
         studyLog: dayList,
         texts: textList,
         writing: writingList,
+        decks: deckList,
+        deckCards: deckCardList,
         settings: normalizeSettings(d.settings),
       },
     };
@@ -420,6 +459,18 @@ export function mergeSnapshots(existing: Snapshot, incoming: Snapshot): { snapsh
     if (!cur || t.updatedAt > cur.updatedAt) texts.set(t.id, t);
   }
 
+  // paquets et cartes : le plus récemment modifié l'emporte
+  const decks = new Map<string, Deck>(existing.decks.map((x) => [x.id, x]));
+  for (const x of incoming.decks) {
+    const cur = decks.get(x.id);
+    if (!cur || x.updatedAt > cur.updatedAt) decks.set(x.id, x);
+  }
+  const deckCards = new Map<string, DeckCard>(existing.deckCards.map((x) => [x.id, x]));
+  for (const x of incoming.deckCards) {
+    const cur = deckCards.get(x.id);
+    if (!cur || x.updatedAt > cur.updatedAt) deckCards.set(x.id, x);
+  }
+
   // écriture : pour chaque caractère, le compteur le plus élevé
   const writing = new Map<string, WritingStat>(existing.writing.map((w) => [w.char, w]));
   for (const w of incoming.writing) {
@@ -436,6 +487,8 @@ export function mergeSnapshots(existing: Snapshot, incoming: Snapshot): { snapsh
       studyLog: [...days.values()],
       texts: [...texts.values()],
       writing: [...writing.values()],
+      decks: [...decks.values()],
+      deckCards: [...deckCards.values()],
       settings: existing.settings,
     },
     report,

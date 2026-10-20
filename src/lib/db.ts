@@ -7,10 +7,10 @@
 // Migrations : pour changer la structure, on ajoute une fonction à la fin de MIGRATIONS (et on garde les anciennes).
 // Le numéro de version de la base = nombre de migrations.
 
-import { Entry, Card, ReviewState, ExerciseStat, StudyDay, Settings, Snapshot, TextItem, WritingStat, DEFAULT_SETTINGS } from "./types";
+import { Entry, Card, ReviewState, ExerciseStat, StudyDay, Settings, Snapshot, TextItem, WritingStat, Deck, DeckCard, DEFAULT_SETTINGS } from "./types";
 import { normalizeSettings } from "./backup";
 
-export type StoreName = "entries" | "cards" | "reviewStates" | "exerciseStats" | "studyLog" | "texts" | "writing" | "settings" | "meta";
+export type StoreName = "entries" | "cards" | "reviewStates" | "exerciseStats" | "studyLog" | "texts" | "writing" | "decks" | "deckCards" | "settings" | "meta";
 
 const KEY_PATHS: Record<StoreName, string> = {
   entries: "id",
@@ -20,6 +20,8 @@ const KEY_PATHS: Record<StoreName, string> = {
   studyLog: "key",
   texts: "id",
   writing: "char",
+  decks: "id",
+  deckCards: "id",
   settings: "key",
   meta: "key",
 };
@@ -40,6 +42,12 @@ const MIGRATIONS: Array<(db: IDBDatabase) => void> = [
   // version 3 : résultats d'écriture (kana, kanji)
   (db) => {
     if (!db.objectStoreNames.contains("writing")) db.createObjectStore("writing", { keyPath: KEY_PATHS.writing });
+  },
+  // version 4 : paquets de flashcards et leurs cartes
+  (db) => {
+    for (const name of ["decks", "deckCards"] as StoreName[]) {
+      if (!db.objectStoreNames.contains(name)) db.createObjectStore(name, { keyPath: KEY_PATHS[name] });
+    }
   },
 ];
 
@@ -129,7 +137,7 @@ export async function write(ops: WriteOp[]): Promise<void> {
 const SETTINGS_KEY = "app";
 
 export async function loadSnapshot(): Promise<Snapshot> {
-  const [entries, cards, reviewStates, exerciseStats, studyLog, texts, writing, settingsRows] = await Promise.all([
+  const [entries, cards, reviewStates, exerciseStats, studyLog, texts, writing, decks, deckCards, settingsRows] = await Promise.all([
     getAll<Entry>("entries"),
     getAll<Card>("cards"),
     getAll<ReviewState>("reviewStates"),
@@ -137,10 +145,12 @@ export async function loadSnapshot(): Promise<Snapshot> {
     getAll<StudyDay>("studyLog"),
     getAll<TextItem>("texts"),
     getAll<WritingStat>("writing"),
+    getAll<Deck>("decks"),
+    getAll<DeckCard>("deckCards"),
     getAll<Settings & { key: string }>("settings"),
   ]);
   const row = settingsRows.find((r) => r.key === SETTINGS_KEY);
-  return { entries, cards, reviewStates, exerciseStats, studyLog, texts, writing, settings: row ? normalizeSettings(row) : normalizeSettings(DEFAULT_SETTINGS) };
+  return { entries, cards, reviewStates, exerciseStats, studyLog, texts, writing, decks, deckCards, settings: row ? normalizeSettings(row) : normalizeSettings(DEFAULT_SETTINGS) };
 }
 
 export function settingsRecord(settings: Settings): Settings & { key: string } {
@@ -157,6 +167,8 @@ export async function replaceAll(snap: Snapshot): Promise<void> {
     { store: "studyLog", clear: true, put: snap.studyLog },
     { store: "texts", clear: true, put: snap.texts },
     { store: "writing", clear: true, put: snap.writing },
+    { store: "decks", clear: true, put: snap.decks },
+    { store: "deckCards", clear: true, put: snap.deckCards },
     { store: "settings", clear: true, put: [settingsRecord(snap.settings)] },
   ]);
 }

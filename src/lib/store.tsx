@@ -20,11 +20,15 @@ import {
   TextItem,
   emptySnapshot,
   WritingStat,
+  Deck,
+  DeckCard,
 } from "./types";
 import * as db from "./db";
 import { newReviewState, schedule } from "./srs";
 import { dayKey } from "./dates";
 import { makeEntryCards } from "./cards";
+import { Dir, Mode, legacyToDeckCards, withResult } from "./decks";
+import { uid } from "./ids";
 import { BackupFile, MergeReport, createBackup, mergeSnapshots, normalizeSettings } from "./backup";
 import type { Exercise } from "./exercises";
 
@@ -34,6 +38,12 @@ export interface AnswerArgs {
   hinted: boolean;
   retry: boolean;
   elapsedSec: number;
+}
+
+export interface DeckResult {
+  cardId: string;
+  dir: Dir;
+  ok: boolean;
 }
 
 export interface Store {
@@ -54,6 +64,14 @@ export interface Store {
   answerCard(args: AnswerArgs): Promise<void>;
   answerExercise(exercise: Exercise, correct: boolean, elapsedSec: number): Promise<void>;
   recordWriting(char: string, kind: WritingStat["kind"], correct: boolean): Promise<void>;
+  saveDeck(deck: Deck): Promise<void>;
+  deleteDeck(id: string): Promise<void>;
+  saveDeckCards(cards: DeckCard[]): Promise<void>;
+  deleteDeckCards(ids: string[]): Promise<void>;
+  /** Enregistre les résultats d'une session de révision d'un paquet (progression des cartes + minutes d'étude). */
+  recordDeckResults(args: { deckId: string; lang: Lang; mode: Mode; results: DeckResult[]; seconds: number; bestMatchMs?: number }): Promise<void>;
+  /** Transforme les anciennes cartes du dictionnaire en un paquet « Anciennes cartes », puis les supprime. Renvoie le nombre de cartes reprises. */
+  convertLegacyCards(lang: Lang): Promise<number>;
   saveText(item: TextItem): Promise<void>;
   deleteText(id: string): Promise<void>;
   updateSettings(fn: (s: Settings) => Settings): Promise<void>;
@@ -328,6 +346,111 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           const stat: WritingStat = { ...prev, tries: prev.tries + 1, correct: prev.correct + (correct ? 1 : 0), lastAt: now, lastCorrect: correct };
           await db.write([{ store: "writing", put: [stat] }]);
           commit({ ...cur, writing: upsert(cur.writing, stat, (w) => w.char) });
+        }),
+
+      saveDeck: (deck) =>
+        enqueue(async () => {
+          const cur = ref.current;
+          await db.write([{ store: "decks", put: [deck] }]);
+          commit({ ...cur, decks: upsert(cur.decks, deck, (d) => d.id) });
+        }),
+
+      deleteDeck: (id) =>
+        enqueue(async () => {
+          const cur = ref.current;
+          const ids = cur.deckCards.filter((c) => c.deckId === id).map((c) => c.id);
+          await db.write([
+            { store: "decks", del: [id] },
+            { store: "deckCards", del: ids },
+          ]);
+          const gone = new Set(ids);
+          commit({ ...cur, decks: cur.decks.filter((d) => d.id !== id), deckCards: cur.deckCards.filter((c) => !gone.has(c.id)) });
+        }),
+
+      saveDeckCards: (cards) =>
+        enqueue(async () => {
+          if (cards.length === 0) return;
+          const cur = ref.current;
+          await db.write([{ store: "deckCards", put: cards }]);
+          const byId = new Map(cards.map((c) => [c.id, c]));
+          const merged = cur.deckCards.map((c) => byId.get(c.id) ?? c);
+          const have = new Set(cur.deckCards.map((c) => c.id));
+          commit({ ...cur, deckCards: [...merged, ...cards.filter((c) => !have.has(c.id))] });
+        }),
+
+      deleteDeckCards: (ids) =>
+        enqueue(async () => {
+          if (ids.length === 0) return;
+          const cur = ref.current;
+          await db.write([{ store: "deckCards", del: ids }]);
+          const gone = new Set(ids);
+          commit({ ...cur, deckCards: cur.deckCards.filter((c) => !gone.has(c.id)) });
+        }),
+
+      recordDeckResults: ({ deckId, lang, mode, results, seconds, bestMatchMs }) =>
+        enqueue(async () => {
+          const cur = ref.current;
+          const now = Date.now();
+          const cards = new Map(cur.deckCards.map((c) => [c.id, c]));
+          const changed = new Map<string, DeckCard>();
+          for (const r of results) {
+            const base = changed.get(r.cardId) ?? cards.get(r.cardId);
+            if (base) changed.set(r.cardId, withResult(base, r.dir, r.ok, now));
+          }
+          const date = dayKey(now);
+          const key = `${date}|${lang}`;
+          const day: StudyDay = structuredClone(cur.studyLog.find((d) => d.key === key) ?? blankDay(date, lang));
+          const n = results.length;
+          const ok = results.filter((r) => r.ok).length;
+          day.answers += n;
+          day.correct += ok;
+          day.unaided += ok;
+          day.seconds += Math.max(0, Math.min(n * MAX_SECONDS_PER_ANSWER, Math.round(seconds)));
+          const kind = mode === "write" ? "recall" : "recognition";
+          day[kind].n += n;
+          day[kind].ok += ok;
+
+          let deck = cur.decks.find((d) => d.id === deckId);
+          if (deck && bestMatchMs !== undefined && (deck.bestMatchMs === undefined || bestMatchMs < deck.bestMatchMs)) deck = { ...deck, bestMatchMs, updatedAt: now };
+          else deck = undefined;
+
+          await db.write([
+            { store: "deckCards", put: [...changed.values()] },
+            { store: "studyLog", put: [day] },
+            ...(deck ? [{ store: "decks" as const, put: [deck] }] : []),
+          ]);
+          commit({
+            ...cur,
+            deckCards: cur.deckCards.map((c) => changed.get(c.id) ?? c),
+            studyLog: upsert(cur.studyLog, day, (d) => d.key),
+            decks: deck ? upsert(cur.decks, deck, (d) => d.id) : cur.decks,
+          });
+        }),
+
+      convertLegacyCards: (lang) =>
+        enqueue(async () => {
+          const cur = ref.current;
+          const legacy = cur.cards.filter((c) => c.lang === lang);
+          if (legacy.length === 0) return 0;
+          const now = Date.now();
+          const deck: Deck = { id: uid("deck"), lang, name: "Anciennes cartes", createdAt: now, updatedAt: now };
+          const fresh = legacyToDeckCards(legacy, cur.entries, cur.reviewStates, deck.id, lang, now);
+          const ids = legacy.map((c) => c.id);
+          await db.write([
+            { store: "decks", put: fresh.length ? [deck] : [] },
+            { store: "deckCards", put: fresh },
+            { store: "cards", del: ids },
+            { store: "reviewStates", del: ids },
+          ]);
+          const gone = new Set(ids);
+          commit({
+            ...cur,
+            decks: fresh.length ? [...cur.decks, deck] : cur.decks,
+            deckCards: [...cur.deckCards, ...fresh],
+            cards: cur.cards.filter((c) => !gone.has(c.id)),
+            reviewStates: cur.reviewStates.filter((s) => !gone.has(s.cardId)),
+          });
+          return fresh.length;
         }),
 
       saveText: (item) =>

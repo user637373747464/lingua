@@ -5,14 +5,13 @@ import { Entry, LANG_INFO, Lang, POS_LABELS, POS_LIST, Pos } from "../lib/types"
 import { useData } from "../lib/store";
 import { searchEntries } from "../lib/search";
 import { entryGloss } from "../lib/cards";
-import { MASTERY_LABELS, masteryOf } from "../lib/stats";
 import { buildStarterEntries, STARTER_COUNT } from "../lib/content/starter";
 import { csvToWords, jsonToWords, wordsToEntries } from "../lib/csv";
 import { findDuplicate } from "../lib/search";
 import { EmptyState, Icon, Modal, PageHead, SpeakButton, Txt, useToast } from "./ui";
 
 export default function Dictionary({ lang }: { lang: Lang }) {
-  const { snapshot, statesById, addEntries } = useData();
+  const { snapshot, addEntries } = useData();
   const notify = useToast();
   const [query, setQuery] = useState("");
   const [pos, setPos] = useState<Pos | "">("");
@@ -26,7 +25,7 @@ export default function Dictionary({ lang }: { lang: Lang }) {
     try {
       const existing = snapshot.entries;
       const fresh = buildStarterEntries(lang, Date.now()).filter((e) => !findDuplicate(existing, lang, e.headword, e.reading));
-      await addEntries(fresh, snapshot.settings.autoCreateCards);
+      await addEntries(fresh, false);
       notify(`${fresh.length} mots ajoutés.`, "ok");
     } catch (e) {
       notify(`Ajout impossible : ${e instanceof Error ? e.message : e}`, "error");
@@ -97,7 +96,7 @@ export default function Dictionary({ lang }: { lang: Lang }) {
       ) : (
         <ul className="list">
           {results.map((e) => (
-            <EntryRow key={e.id} entry={e} mastery={masteryOf(e.id, snapshot.cards, statesById)} hasCards={snapshot.cards.some((c) => c.entryId === e.id)} />
+            <EntryRow key={e.id} entry={e} />
           ))}
         </ul>
       )}
@@ -107,7 +106,7 @@ export default function Dictionary({ lang }: { lang: Lang }) {
   );
 }
 
-function EntryRow({ entry, mastery, hasCards }: { entry: Entry; mastery: keyof typeof MASTERY_LABELS; hasCards: boolean }) {
+function EntryRow({ entry }: { entry: Entry }) {
   const pos = entry.senses[0]?.pos;
   return (
     <li className="row-item">
@@ -124,11 +123,10 @@ function EntryRow({ entry, mastery, hasCards }: { entry: Entry; mastery: keyof t
             )}
           </div>
           <div className="muted small clamp">
-            {pos && <em>{POS_LABELS[pos]} · </em>}
+            {pos && <em>{POS_LABELS[pos]}{entry.senses[0]?.gender ? ` ${entry.senses[0].gender === "m" ? "m." : "f."}` : ""} · </em>}
             {entryGloss(entry) || "—"}
           </div>
         </div>
-        <span className={`badge m-${mastery}`}>{hasCards ? MASTERY_LABELS[mastery] : "sans carte"}</span>
         <Icon name="next" size={18} />
       </a>
       <SpeakButton text={entry.reading && entry.lang === "ja" ? entry.reading : entry.headword} lang={entry.lang} />
@@ -190,7 +188,7 @@ function ImportModal({ lang, onClose }: { lang: Lang; onClose: () => void }) {
   const confirm = async () => {
     if (!preview) return;
     try {
-      await addEntries(preview.entries, snapshot.settings.autoCreateCards);
+      await addEntries(preview.entries, false);
       notify(`${preview.entries.length} mot${preview.entries.length > 1 ? "s" : ""} importé${preview.entries.length > 1 ? "s" : ""}.`, "ok");
       onClose();
     } catch (e) {

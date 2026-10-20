@@ -126,7 +126,7 @@ function WordPanel({
     };
     setSaving(true);
     try {
-      await saveEntry(entry, snapshot.settings.autoCreateCards);
+      await saveEntry(entry, false);
       notify(`« ${entry.headword} » ajouté au dictionnaire.`, "ok");
       onClose();
     } catch (e) {

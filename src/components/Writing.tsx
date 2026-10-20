@@ -297,7 +297,7 @@ export function WritingPad({
 
       {result && <ResultPanel ev={result.ev} onRetry={clear} onWatch={() => { clear(); setGuide("anim"); setReplay((n) => n + 1); }} />}
 
-      <label className="field wp-level">
+      <div className="field wp-level">
         <span className="label">Exigence de la comparaison</span>
         <Segmented
           label="Exigence"
@@ -310,7 +310,7 @@ export function WritingPad({
           ]}
         />
         <span className="muted small">Au doigt, le tracé est moins précis qu'au stylo : si de bons tracés sont refusés, passe en « Large ».</span>
-      </label>
+      </div>
     </div>
   );
 }

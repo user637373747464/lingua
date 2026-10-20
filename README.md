@@ -5,7 +5,7 @@ Ton application personnelle pour apprendre l'**anglais** et le **japonais** : di
 - Fonctionne sur **iPhone, iPad et Mac** (comme une vraie appli, depuis l'écran d'accueil)
 - Marche **sans Internet** une fois installée
 - **Gratuite** (0 €/mois), sans compte, sans publicité
-- **Tes données restent sur ton appareil** (rien n'est envoyé nulle part)
+- **Tes données restent sur ton appareil**. Une seule exception, que tu peux couper dans *Réglages* : le **remplissage automatique** du dictionnaire envoie le mot que tu tapes à deux services gratuits (Free Dictionary API et MyMemory)
 
 ---
 
@@ -68,16 +68,18 @@ Ensuite, Lingua s'ouvre même sans connexion.
 
 ## 4. Utiliser Lingua
 
-- **Dictionnaire** : ajoute un mot avec plusieurs sens, catégories (nom, verbe…), exemples, notes et d'où il vient. Si le mot existe déjà, Lingua te prévient. Un petit **paquet de démarrage** (20 mots anglais, 27 japonais) est proposé quand le dictionnaire est vide : tu peux tout modifier ou supprimer.
-- **Révision (flashcards)** : chaque mot a deux cartes :
-  1. **QCM** : on te montre le mot, tu choisis la traduction ;
-  2. **Écriture** : on te montre la traduction, tu écris le mot (en japonais : kana, kanji ou **romaji**, tout est accepté).
-  La carte d'écriture n'arrive qu'après avoir réussi le QCM du même mot. Un mot n'est « maîtrisé » que si tu sais l'écrire.
-  Si tu utilises l'**indice**, la meilleure note possible est « Difficile ». « Je ne sais pas » compte comme un échec honnête : la carte revient dans la session puis dans 10 minutes.
+- **Dictionnaire** (simplifié) : un mot, sa **prononciation** (API ou lecture en kana), son **type** (nom, verbe, adjectif…), son **genre** (masculin/féminin) si tu veux, et sa **traduction** : rien d'autre d'obligatoire. Les exemples sont facultatifs. Si le mot existe déjà, Lingua te prévient. Un petit **paquet de démarrage** (20 mots anglais, 27 japonais) est proposé quand le dictionnaire est vide.
+  - **Remplissage automatique** : quand tu tapes un mot, Lingua cherche la prononciation, le type et des traductions, et remplit **seulement les cases vides** (ce que tu as écrit n'est jamais écrasé). Ce n'est **pas Linguee** (Linguee n'a pas d'accès libre ni le droit de copier sa base) : j'utilise deux services gratuits, *Free Dictionary API* (prononciation, type, anglais) et *MyMemory* (traduction vers le français, anglais et japonais). **Le mot que tu tapes leur est envoyé** (Internet nécessaire) ; tu peux couper cette option dans *Réglages*. Les traductions automatiques sont une aide, pas une vérité : relis-les. Pour le japonais, le service ne fournit pas la lecture : tape-la toi-même.
+- **Flashcards = des paquets à toi**, indépendants du dictionnaire : tu crées un paquet, tu le **nommes**, tu y mets des cartes une par une ou en collant une **liste** (une carte par ligne : `mot ; traduction`). Un mot du dictionnaire n'entre dans un paquet que si **toi** tu l'y ajoutes (bouton sur la fiche du mot, ou « Depuis le dictionnaire » dans le paquet). Dans un paquet, 4 modes de révision :
+  1. **Cartes** : tu retournes la carte et dis si tu la savais ;
+  2. **QCM** : 4 choix, sans doublon ;
+  3. **Écrire** : tu tapes la réponse (accents ignorés ; en japonais kana, kanji ou romaji acceptés ; bouton « J'avais juste » si tu penses avoir raison) ;
+  4. **Associer** : 12 cartes (3 × 4), tu relies le plus vite possible les mots et leurs traductions ; une erreur ajoute 3 secondes ; ton record est gardé.
+  Tu choisis le **sens** : anglais → français, français → anglais, ou mélangé (idem pour le japonais). Chaque sens a sa propre progression (révision espacée : 1, 3, 7, 14, 30 jours). L'onglet « Catégories » n'existe plus pour les flashcards. « Gérer les cartes » est tout en bas de l'accueil. Si tu avais des cartes de l'ancienne version, un bandeau propose de les convertir en paquet (rien n'est perdu).
 - **Exercices** : plus de 600 (QCM, phrases à trous, phrases à remettre en ordre), du niveau A1 au C2 en anglais et de N5 à N1 en japonais, par thème et par niveau (séries de 5 à 50). Les choix d'un QCM sont mélangés à chaque fois. Les erreurs reviennent en priorité.
 - **Progression** : jours d'affilée, minutes d'étude, taux de réussite (avec ou sans indice), QCM contre écriture, cartes difficiles, thèmes à retravailler.
 - **Lecture** : colle un texte (article, extrait, message) et **touche un mot** : si tu l'as déjà dans ton dictionnaire, tu vois sa fiche (les mots connus sont soulignés en pointillés, même conjugués ou au pluriel) ; sinon tu l'ajoutes en quelques secondes avec sa traduction, et la **phrase d'origine est gardée comme exemple**. Un lien « Chercher sur WordReference / Jisho » s'ouvre dans le navigateur (Internet nécessaire).
-- **Actualités** et **Podcasts / vidéos** : ta bibliothèque de liens avec notes, et une liste de **sources conseillées** (VOA Learning English, News in Levels, BBC Learning English ; NHK News Web Easy, Nihongo con Teppei). Lingua **n'affiche pas** ces sites et ne copie rien (les navigateurs l'interdisent) : tu ouvres le lien, tu copies le texte de l'article ou la transcription, tu le colles dans la fiche, et tous les mots deviennent touchables.
+- **Actualités** et **Podcasts / vidéos** : **les liens sont maintenant en haut de la page** : **98 sources conseillées** (articles, podcasts, vidéos ; anglais et japonais), avec au moins **5 sources par niveau** (Débutant / Intermédiaire / Avancé) et un filtre par **thème** (actualité, sciences, culture, histoire, vie quotidienne, apprendre la langue). Bouton « Ouvrir » (ou « Chercher sur YouTube / le podcast » quand je ne suis pas sûr de l'adresse exacte) et « Garder dans ma bibliothèque ». Lingua **n'affiche pas** ces sites et ne copie rien (les navigateurs l'interdisent) : tu ouvres le lien, tu copies le texte ou la transcription, tu le colles dans une fiche, et tous les mots deviennent touchables. Sur chaque fiche, une case **« Noter un mot »** envoie directement le mot vers le dictionnaire (avec remplissage automatique).
 - **Leçons** : fiches de grammaire écrites en français, avec exemples et tableaux : temps, conditionnels, modaux, passif, articles, **110 verbes irréguliers** (avec recherche) en anglais ; particules, groupes de verbes, formes て / ない / た, adjectifs, compteurs, heure, politesse en japonais. Rubrique rédigée à la main : si tu repères une erreur, dis-le-moi.
 - **Écriture** (japonais) : les **46 hiragana, 46 katakana, leurs variantes** (dakuten, handakuten, petits ゃ ゅ ょ っ, ー) et **80 kanji du N5**. Pour chaque caractère : le modèle **s'anime trait par trait** (numéros dans l'ordre), tu peux le **calquer** ou l'écrire **de mémoire** avec le doigt, puis « Vérifier » : ton tracé est superposé au modèle, trait par trait, avec le **sens** (départ marqué par un rond), l'**ordre**, le nombre de traits et la forme. Les erreurs sont expliquées en français (« trait n°2 dessiné à l'envers », « l'ordre n'est pas respecté », « il manque un trait »…). Un quiz de 10 caractères favorise ceux que tu rates. La taille et la position de ton dessin n'ont pas d'importance (sauf pour les petits kana : ゃ ゅ ょ っ doivent être écrits petit). Les tracés viennent de **KanjiVG** (voir plus bas).
 - **Voix** : le bouton 🔊 utilise les voix de ton appareil. Si aucune voix japonaise n'est installée : *Réglages iPhone › Accessibilité › Contenu énoncé › Voix › Japonais*.
@@ -104,6 +106,8 @@ Plusieurs traductions : sépare-les par `;`. Les mots déjà présents sont igno
 
 **Écriture tactile** : tracé des kana et de 80 kanji, comparaison avec le sens et l'ordre des traits, quiz.
 
+**Flashcards en paquets** (4 modes, 2 sens), **dictionnaire simplifié avec remplissage automatique**, **98 sources** triées par niveau et thème.
+
 **Pas encore fait (affichés « Prochainement »)** : histoires graduées, conversation. On les ajoutera une par une.
 
 **À savoir sur les exercices** : je les ai écrits moi-même et relus un par un, mais ce n'est pas un manuel agréé : si une réponse te paraît fausse ou ambiguë, ne la crois pas aveuglément et dis-le-moi. Les niveaux (A1–C2, N5–N1) sont indicatifs.
@@ -114,10 +118,11 @@ Plusieurs traductions : sépare-les par `;`. Les mots déjà présents sont igno
 
 **Tracés : KanjiVG.** Les modèles de tracé viennent de KanjiVG (https://kanjivg.tagaini.net), © 2009–2011 Ulrich Apel et contributeurs, licence Creative Commons Attribution-ShareAlike 3.0. Le fichier `src/lib/content/strokes.ts` est une adaptation de ces données et reste donc sous la même licence (CC BY-SA 3.0). Il est fabriqué par `scripts/build-strokes.mjs`.
 
-**Testé** : 105 tests automatiques de la logique (répétition espacée, vérification des réponses, romaji, sauvegarde/fusion, import CSV, exercices, statistiques, lecteur de mots) + un parcours complet dans un vrai navigateur (Chromium) : ajout/modification/suppression de mots, révisions, exercices, import CSV, les nouveaux écrans de lecture/actualités/podcasts, l'écriture (dessin à la souris et avec des événements tactiles : tracé juste, trait à l'envers, mauvais ordre, trait manquant, petit kana, quiz), la mise à jour de ta base de données existante vers la nouvelle version (tes mots sont conservés), export/import de sauvegarde (fusion et remplacement), thème sombre, mode hors ligne, effacement total, écran téléphone et ordinateur.
+**Testé** : 119 tests automatiques de la logique (paquets de flashcards, remplissage automatique, sources, répétition espacée, vérification des réponses, romaji, sauvegarde/fusion, import CSV, exercices, statistiques, lecteur de mots) + un parcours complet dans un vrai navigateur (Chromium) : ajout/modification/suppression de mots, révisions, exercices, import CSV, les écrans de lecture/actualités/podcasts (filtres de sources),  les paquets de flashcards (création, liste collée, 4 modes, 2 sens, jeu Associer, japonais), le dictionnaire simplifié et son remplissage automatique (réponses simulées), l'écriture (dessin à la souris et avec des événements tactiles : tracé juste, trait à l'envers, mauvais ordre, trait manquant, petit kana, quiz), la mise à jour de ta base de données existante vers la nouvelle version (tes mots sont conservés), export/import de sauvegarde (fusion et remplacement), thème sombre, mode hors ligne, effacement total, écran téléphone et ordinateur.
 
 **Pas testé (je n'ai pas pu)** :
-- les **adresses des sources conseillées** : je n'ai pu vérifier à la main que VOA Learning English, News in Levels et Nihongo con Teppei. **NHK News Web Easy et BBC Learning English n'ont pas pu être vérifiés** (accès bloqué depuis mon environnement) ; si un lien ne s'ouvre pas, cherche le nom sur Internet ;
+- les **adresses des sources conseillées** : mon environnement ne peut pas ouvrir ces sites, donc **aucun lien n'a été ouvert un par un**. Ce sont des pages d'accueil officielles que je connais ; une partie (chaînes YouTube et podcasts dont je ne suis pas sûr de l'adresse) passe par une **recherche** qui ne peut pas être cassée. Les niveaux et thèmes sont mon appréciation. Si un lien ne s'ouvre pas, cherche le nom sur Internet et dis-le-moi ;
+- le **remplissage automatique** du dictionnaire avec de **vrais** services : mes tests utilisent des réponses simulées (le réseau de mon environnement bloque ces deux services). Les analyseurs de réponses sont testés, mais **le premier essai en vrai, c'est toi qui le fais** : si rien ne se remplit, l'application te le dit et tu peux tout saisir à la main. MyMemory limite le nombre de demandes par jour (message affiché si c'est atteint) ;
 - sur un vrai **iPhone/iPad/Safari** (les voix, l'installation sur l'écran d'accueil et la conservation des données y varient) ;
 - la commande **`next build`** et la publication GitHub elle-même : le réseau de mon environnement bloquait le téléchargement des paquets. Le code a été vérifié avec un autre outil de construction. **Si l'onglet Actions affiche une erreur rouge, copie-m'en le texte, je corrige.**
 
@@ -132,7 +137,7 @@ Il faut [Node.js 22+](https://nodejs.org).
 ```bash
 npm install      # une seule fois
 npm run dev      # lance Lingua sur http://localhost:3000
-npm test         # lance les 105 tests
+npm test         # lance les 119 tests
 npm run typecheck
 npm run build    # fabrique le site dans le dossier "out"
 npm run preview  # l'ouvre pour vérifier

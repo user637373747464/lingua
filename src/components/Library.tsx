@@ -5,8 +5,8 @@ import { Lang, MAX_TEXT_LENGTH, TextItem, TextKind } from "../lib/types";
 import { useData } from "../lib/store";
 import { uid } from "../lib/ids";
 import { safeHttpUrl } from "../lib/url";
-import { SOURCES, Source } from "../lib/content/sources";
-import { ConfirmDialog, EmptyState, Icon, Modal, PageHead, Txt, useToast } from "./ui";
+import { LEVELS, LevelId, Source, SourceKind, THEMES, ThemeId, pickSources } from "../lib/content/sources";
+import { ConfirmDialog, EmptyState, Icon, Modal, PageHead, Segmented, Txt, useToast } from "./ui";
 import Reader from "./Reader";
 
 export type Section = "reading" | "news" | "audio";
@@ -54,7 +54,12 @@ export function LibraryPage({ lang, section }: { lang: Lang; section: Section })
     () => snapshot.texts.filter((t) => t.lang === lang && t.kind === info.kind).sort((a, b) => b.updatedAt - a.updatedAt),
     [snapshot.texts, lang, info.kind],
   );
-  const sources = SOURCES.filter((s) => s.lang === lang && (section === "news" ? s.kind === "article" : section === "audio" ? s.kind === "podcast" : false));
+  const [level, setLevel] = useState<LevelId | "all">("all");
+  const [theme, setTheme] = useState<ThemeId | "all">("all");
+  const [mediaKind, setMediaKind] = useState<"all" | "podcast" | "video">("all");
+  const sourceKinds: SourceKind[] = section === "news" ? ["article"] : section === "audio" ? (mediaKind === "all" ? ["podcast", "video"] : [mediaKind]) : [];
+  const sources = pickSources(lang, sourceKinds, level, theme);
+  const hasSources = section !== "reading";
 
   const addSource = async (s: Source) => {
     if (items.some((t) => t.url === s.url)) return notify("Cette source est déjà dans ta bibliothèque.", "info");
@@ -73,6 +78,74 @@ export function LibraryPage({ lang, section }: { lang: Lang; section: Section })
           <Icon name="plus" size={18} /> Ajouter
         </button>} />
 
+      {hasSources && (
+        <section className="stack" aria-label="Sources conseillées">
+          <h2 className="h3">Sources conseillées</h2>
+          <p className="muted small">
+            Touche « Ouvrir » : le site s'ouvre dans ton navigateur (Internet nécessaire). Lingua ne copie rien. Pour noter des mots, copie un passage, puis colle-le dans « Ajouter » : chaque mot devient touchable.
+          </p>
+          <div className="stack tight">
+            {section === "audio" && (
+              <Segmented
+                label="Type"
+                value={mediaKind}
+                onChange={setMediaKind}
+                options={[
+                  { value: "all", label: "Tout" },
+                  { value: "podcast", label: "Podcasts" },
+                  { value: "video", label: "Vidéos" },
+                ]}
+              />
+            )}
+            <Segmented
+              label="Niveau"
+              value={level}
+              onChange={setLevel}
+              options={[{ value: "all", label: "Tous" }, ...LEVELS.map((l) => ({ value: l.id, label: l.label }))]}
+            />
+            {level !== "all" && <div className="muted small">Niveau « {LEVELS.find((l) => l.id === level)!.label} » : environ {LEVELS.find((l) => l.id === level)!.hint[lang]}.</div>}
+            <div className="chips" role="group" aria-label="Thème">
+              {(["all", ...Object.keys(THEMES)] as (ThemeId | "all")[]).map((t) => (
+                <button key={t} className={`chip ${theme === t ? "on" : ""}`} aria-pressed={theme === t} onClick={() => setTheme(t)}>
+                  {t === "all" ? "Tous les thèmes" : THEMES[t]}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="muted small" aria-live="polite">
+            {sources.length} source{sources.length > 1 ? "s" : ""}
+          </div>
+          {sources.length === 0 && <p className="muted">Aucune source avec ce niveau et ce thème. Essaie « Tous les thèmes ».</p>}
+          {sources.map((s) => (
+            <div key={s.id} className="card stack tight source-card">
+              <div className="row between wrap">
+                <Txt lang={lang} className="module-title">
+                  {s.name}
+                </Txt>
+                <div className="row wrap tight">
+                  {s.kind === "video" && <span className="badge">Vidéo</span>}
+                  {s.kind === "podcast" && section === "audio" && <span className="badge">Podcast</span>}
+                  <span className="badge">{THEMES[s.theme]}</span>
+                </div>
+              </div>
+              <div className="muted small">
+                {s.levels.map((l) => LEVELS.find((x) => x.id === l)!.label).join(" · ")} — {s.description}
+              </div>
+              <div className="row wrap">
+                <a className="btn small primary" href={s.url} target="_blank" rel="noopener noreferrer">
+                  <Icon name="link" size={14} /> {s.search === "youtube" ? "Chercher sur YouTube" : s.search === "podcasts" ? "Chercher le podcast" : "Ouvrir"}
+                  <span className="sr-only"> {s.name} (nouvel onglet)</span>
+                </a>
+                <button className="btn small" onClick={() => addSource(s)}>
+                  <Icon name="plus" size={14} /> Garder dans ma bibliothèque
+                </button>
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {hasSources && <h2 className="h3">{section === "news" ? "Mes articles" : "Ma bibliothèque"}</h2>}
       {items.length === 0 ? (
         <EmptyState title="Rien ici pour l'instant">{info.empty}</EmptyState>
       ) : (
@@ -93,32 +166,6 @@ export function LibraryPage({ lang, section }: { lang: Lang; section: Section })
             </li>
           ))}
         </ul>
-      )}
-
-      {sources.length > 0 && (
-        <section className="stack">
-          <h2 className="h3">Sources conseillées</h2>
-          <p className="muted small">
-            Des sites connus pour apprendre. Lingua ne copie rien : le lien s'ouvre dans ton navigateur. Les adresses peuvent changer : si une page ne s'ouvre plus, cherche simplement le nom sur Internet.
-          </p>
-          {sources.map((s) => (
-            <div key={s.id} className="card stack tight">
-              <div className="row between wrap">
-                <div className="module-title">{s.name}</div>
-                <span className="badge">{s.level}</span>
-              </div>
-              <div className="muted small">{s.description}</div>
-              <div className="row wrap">
-                <a className="btn small" href={s.url} target="_blank" rel="noopener noreferrer">
-                  <Icon name="link" size={14} /> Ouvrir le site
-                </a>
-                <button className="btn small" onClick={() => addSource(s)}>
-                  <Icon name="plus" size={14} /> Ajouter à ma bibliothèque
-                </button>
-              </div>
-            </div>
-          ))}
-        </section>
       )}
 
       {editing && <TextForm lang={lang} section={section} item={editing === "new" ? undefined : editing} onClose={() => setEditing(null)} onSaved={() => setEditing(null)} />}
@@ -204,6 +251,34 @@ export function TextForm({ lang, section, item, onClose, onSaved }: { lang: Lang
   );
 }
 
+// ---------- noter un mot rapidement (quand on lit ou écoute ailleurs) ----------
+
+function NoteWord({ lang }: { lang: Lang }) {
+  const [word, setWord] = useState("");
+  const go = (ev: React.FormEvent) => {
+    ev.preventDefault();
+    const w = word.trim();
+    window.location.hash = w ? `#/${lang}/dictionary/new?w=${encodeURIComponent(w)}` : `#/${lang}/dictionary/new`;
+  };
+  return (
+    <form className="card row wrap" onSubmit={go} aria-label="Noter un mot">
+      <input
+        className={`input grow ${lang === "ja" ? "ja" : ""}`}
+        value={word}
+        onChange={(e) => setWord(e.target.value)}
+        placeholder="Un mot à noter (copie-colle-le ici)"
+        aria-label="Mot à noter"
+        autoCapitalize="none"
+        autoCorrect="off"
+        lang={lang === "ja" ? "ja" : "en"}
+      />
+      <button type="submit" className="btn">
+        <Icon name="plus" size={16} /> Noter dans le dictionnaire
+      </button>
+    </form>
+  );
+}
+
 // ---------- affichage d'un texte ----------
 
 export function TextView({ lang, section, id }: { lang: Lang; section: Section; id: string }) {
@@ -257,6 +332,7 @@ export function TextView({ lang, section, id }: { lang: Lang; section: Section; 
         </a>
       )}
       {item.notes && <p className="muted">{item.notes}</p>}
+      <NoteWord lang={lang} />
       {item.body ? (
         <Reader lang={lang} text={item.body} sourceTitle={item.title} sourceUrl={link ?? undefined} />
       ) : (

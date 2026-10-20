@@ -40,10 +40,6 @@ function LangSettingsCard({ lang }: { lang: Lang }) {
           <span className="label">Minutes par jour</span>
           <input className="input" type="number" inputMode="numeric" min={5} max={240} step={5} value={cfg.dailyMinutes} onChange={(e) => save({ dailyMinutes: Number(e.target.value) })} />
         </label>
-        <label className="field">
-          <span className="label">Nouvelles cartes par jour</span>
-          <input className="input" type="number" inputMode="numeric" min={0} max={100} value={cfg.newPerDay} onChange={(e) => save({ newPerDay: Number(e.target.value) })} />
-        </label>
       </div>
     </section>
   );
@@ -227,7 +223,7 @@ function BackupSection() {
             <p className="small muted">{pending.name}</p>
             <ul className="plain">
               <li>{p.entries.length} mots</li>
-              <li>{p.cards.length} cartes</li>
+              <li>{p.decks.length} paquets, {p.deckCards.length} cartes</li>
               <li>{p.studyLog.length} jours d'historique</li>
             </ul>
             {pending.warnings.length > 0 && (
@@ -329,14 +325,6 @@ export default function SettingsPage() {
       {LANGS.map((l) => (
         <LangSettingsCard key={l} lang={l} />
       ))}
-
-      <section className="card stack">
-        <h2 className="h3">Cartes</h2>
-        <label className="checkbox">
-          <input type="checkbox" checked={s.autoCreateCards} onChange={(e) => set((x) => ({ ...x, autoCreateCards: e.target.checked }))} />
-          <span>Créer automatiquement les cartes quand j'ajoute un mot</span>
-        </label>
-      </section>
 
       <VoiceSection />
       <BackupSection />

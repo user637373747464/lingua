@@ -14,7 +14,7 @@ function LangCard({ lang }: { lang: Lang }) {
   const info = LANG_INFO[lang];
   const cfg = snapshot.settings.langs[lang];
   const minutes = Math.floor(s.secondsToday / 60);
-  const nothing = s.due + s.fresh === 0;
+  const nothing = s.cards === 0;
   return (
     <article className={`card lang-card lang-${lang}`}>
       <header className="lang-head">
@@ -32,15 +32,15 @@ function LangCard({ lang }: { lang: Lang }) {
       <div className="metrics">
         <div>
           <strong>{s.due}</strong>
-          <span>à réviser</span>
+          <span>à revoir</span>
         </div>
         <div>
           <strong>{s.fresh}</strong>
           <span>nouvelles</span>
         </div>
         <div>
-          <strong>{s.words}</strong>
-          <span>mots</span>
+          <strong>{s.cards}</strong>
+          <span>cartes</span>
         </div>
       </div>
 
@@ -55,15 +55,9 @@ function LangCard({ lang }: { lang: Lang }) {
       </div>
 
       <div className="row wrap">
-        {s.words === 0 ? (
-          <a className="btn primary grow" href={`#/${lang}/dictionary`}>
-            Ajouter des mots
-          </a>
-        ) : (
-          <a className="btn primary grow" href={`#/${lang}/study`}>
-            {nothing ? "Voir les révisions" : "Commencer une session"}
-          </a>
-        )}
+        <a className="btn primary grow" href={`#/${lang}/study`}>
+          {nothing ? "Créer un paquet" : "Réviser mes paquets"}
+        </a>
         <a className="btn" href={`#/${lang}`}>
           Ouvrir
         </a>
@@ -79,7 +73,7 @@ export default function Home() {
   const totalSeconds = snapshot.studyLog.filter((d) => d.date === dayKey(now)).reduce((n, d) => n + d.seconds, 0);
   const goal = LANGS.reduce((n, l) => n + snapshot.settings.langs[l].dailyMinutes, 0);
   const reminderDays = snapshot.settings.backupReminderDays;
-  const hasData = snapshot.entries.length > 0 || snapshot.cards.length > 0;
+  const hasData = snapshot.entries.length > 0 || snapshot.cards.length > 0 || snapshot.deckCards.length > 0;
   const daysSince = lastBackupAt === undefined ? Infinity : Math.floor((now - lastBackupAt) / 86400_000);
   const showBackupReminder = hasData && reminderDays > 0 && daysSince >= reminderDays;
 
@@ -126,17 +120,17 @@ interface Module {
 }
 
 const MODULES: Module[] = [
-  { id: "study", title: "Flashcards", desc: "Réviser au bon moment", icon: "cards", href: "study" },
+  { id: "study", title: "Flashcards", desc: "Tes paquets : cartes, QCM, écrire, associer", icon: "cards", href: "study" },
   { id: "dictionary", title: "Dictionnaire", desc: "Tes mots, sens et exemples", icon: "book", href: "dictionary" },
   { id: "exercises", title: "Grammaire et exercices", desc: "QCM, trous, phrases à remettre en ordre", icon: "pen", href: "exercises" },
   { id: "lessons", title: "Leçons", desc: "Fiches de grammaire, temps, verbes irréguliers", icon: "bulb", href: "lessons" },
-  { id: "cards", title: "Gérer les cartes", desc: "Créer, suspendre, supprimer", icon: "sliders", href: "cards" },
   { id: "writing", title: "Écriture", desc: "Kana, kanji, tracé et ordre des traits", icon: "edit", href: "writing", onlyLang: "ja" },
   { id: "reading", title: "Lecture", desc: "Textes avec dictionnaire au toucher", icon: "book", href: "reading" },
   { id: "news", title: "Actualités", desc: "Articles, sources conseillées, mots au toucher", icon: "link", href: "news" },
   { id: "audio", title: "Podcasts et vidéos", desc: "Ta bibliothèque d'écoute + transcriptions", icon: "speaker", href: "audio" },
   { id: "stories", title: "Histoires graduées", desc: "Lire à son niveau", icon: "book", soon: true },
   { id: "talk", title: "Conversation", desc: "Entraînement guidé", icon: "pen", soon: true },
+  { id: "cards", title: "Gérer les cartes", desc: "Chercher, modifier, déplacer, supprimer", icon: "sliders", href: "cards" },
 ];
 
 export function LangDashboard({ lang }: { lang: Lang }) {
@@ -156,14 +150,14 @@ export function LangDashboard({ lang }: { lang: Lang }) {
       <div className="card cta">
         <div>
           <div className="h2">
-            {s.due} à réviser · {s.fresh} nouvelle{s.fresh > 1 ? "s" : ""}
+            {s.due} à revoir · {s.fresh} nouvelle{s.fresh > 1 ? "s" : ""}
           </div>
           <div className="muted small">
-            {Math.floor(s.secondsToday / 60)} / {cfg.dailyMinutes} min aujourd'hui · {s.words} mots · {s.mastered} maîtrisé{s.mastered > 1 ? "s" : ""}
+            {Math.floor(s.secondsToday / 60)} / {cfg.dailyMinutes} min aujourd'hui · {s.decks} paquet{s.decks > 1 ? "s" : ""} · {s.cards} carte{s.cards > 1 ? "s" : ""} · {s.learned} bien retenue{s.learned > 1 ? "s" : ""}
           </div>
         </div>
         <a className="btn primary" href={`#/${lang}/study`}>
-          Commencer
+          Mes paquets
         </a>
       </div>
 

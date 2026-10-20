@@ -443,3 +443,28 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .wdot.good { background: var(--ok-soft); border: 1px solid var(--ok); }
 .wbig { font-size: 3rem; line-height: 1.1; }
 .notice.tip.ok { background: var(--ok-soft); color: var(--ok); }
+
+/* ---------- paquets de flashcards ---------- */
+.modes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.mode { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; padding: 10px 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; }
+.mode.on { border-color: var(--accent); background: var(--accent-soft); }
+.mode:disabled { opacity: 0.5; cursor: not-allowed; }
+.grades.two { grid-template-columns: 1fr 1fr; }
+.strong { font-weight: 650; }
+.pick-list { max-height: 50dvh; overflow-y: auto; }
+.timer { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--accent); }
+.match-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tile {
+  min-height: 76px; padding: 8px 6px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink);
+  font: inherit; font-size: 1.05rem; cursor: pointer; display: grid; place-items: center; text-align: center; overflow-wrap: anywhere; line-height: 1.25;
+}
+.tile.sel { border-color: var(--accent); background: var(--accent-soft); }
+.tile.bad { border-color: var(--ko); background: var(--ko-soft); animation: shake 0.35s; }
+.tile.done { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); opacity: 0.55; cursor: default; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@media (prefers-reduced-motion: reduce) { .tile.bad { animation: none; } }
+.small-chip { min-height: 32px; padding: 2px 12px; font-size: 0.9rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.row.tight { gap: 6px; }
+.source-card .btn.small { min-height: 44px; }
